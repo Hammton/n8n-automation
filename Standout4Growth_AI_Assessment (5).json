@@ -1,0 +1,1101 @@
+{
+  "name": "Standout4Growth_AI_Assessment",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "standout4growth-assessment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "b472aa4c-c465-4fb7-bd44-920515e339bf",
+      "name": "Form Submission Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        -1072,
+        512
+      ],
+      "webhookId": "standout4growth-assessment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get incoming form data\nconst body = $input.item.json.body;\n// Access the nested answers object\nconst answers = body.answers;\n\n// Point mapping\nconst points = { 'a': 3, 'b': 2, 'c': 1 };\nlet totalScore = 0;\n\n// Calculate score for all 12 questions from the 'answers' object\n// Note: The incoming answers are lowercase 'a', 'b', 'c'\ntotalScore += points[answers.q1.toLowerCase()] || 0;\ntotalScore += points[answers.q2.toLowerCase()] || 0;\ntotalScore += points[answers.q3.toLowerCase()] || 0;\ntotalScore += points[answers.q4.toLowerCase()] || 0;\ntotalScore += points[answers.q5.toLowerCase()] || 0;\ntotalScore += points[answers.q6.toLowerCase()] || 0;\ntotalScore += points[answers.q7.toLowerCase()] || 0;\ntotalScore += points[answers.q8.toLowerCase()] || 0;\ntotalScore += points[answers.q9.toLowerCase()] || 0;\ntotalScore += points[answers.q10.toLowerCase()] || 0;\ntotalScore += points[answers.q11.toLowerCase()] || 0;\ntotalScore += points[answers.q12.toLowerCase()] || 0;\n\n// Calculate score percentage\nconst scorePercentage = Math.round((totalScore / 36) * 100);\n\n// Format answers for AI context from the 'answers' object\nconst formattedAnswers = `\nQ1: ${answers.q1} | Q2: ${answers.q2} | Q3: ${answers.q3}\nQ4: ${answers.q4} | Q5: ${answers.q5} | Q6: ${answers.q6}\nQ7: ${answers.q7} | Q8: ${answers.q8} | Q9: ${answers.q9}\nQ10: ${answers.q10} | Q11: ${answers.q11} | Q12: ${answers.q12}\n`;\n\n// Prepare output for the next nodes\nreturn {\n  json: {\n    name: body.name,\n    email: body.email,\n    totalScore: totalScore,\n    scorePercentage: scorePercentage,\n    formattedAnswers: formattedAnswers\n  }\n};"
+      },
+      "id": "b663b273-bc14-486e-a09c-8e82f73aa46f",
+      "name": "Prepare Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -848,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.totalScore }}",
+                    "rightValue": 16,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    },
+                    "id": "cf713f60-1474-4838-90da-75c1838e321f"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Set Hidden Gem"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "27332fa6-d500-4226-b41c-c5572c1a2e45",
+                    "leftValue": "={{ $json.totalScore }}",
+                    "rightValue": 27,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Set Rising Expert"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "7d5d3903-6ad7-418f-818b-b19a8015e39e",
+                    "leftValue": "={{ $json.totalScore }}",
+                    "rightValue": 28,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Set In-Demand Influencer"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e797feb6-05bc-4ab7-9e8d-41f023ddd37a",
+      "name": "Score Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        -624,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "category_name",
+              "name": "category_name",
+              "value": "The Hidden Gem",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "960b6e48-ca2c-4553-9339-9516972de695",
+      "name": "Set Hidden Gem",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -400,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "category_name",
+              "name": "category_name",
+              "value": "The Rising Expert",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "05800f46-0179-41f0-9925-97cfebe99d14",
+      "name": "Set Rising Expert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -400,
+        256
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "category_name",
+              "name": "category_name",
+              "value": "The In-Demand Influencer",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9de691ea-8053-4ef6-bdb9-9615f5fdad65",
+      "name": "Set In-Demand Influencer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        -400,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert brand strategist for Standout4Growth. A user has completed our assessment and has been categorized. Your task is to provide three hyper-personalized, actionable recommendations and a motivational quote based ONLY on their specific answers.\n\n**User Category:**\n{{ $('Merge').item.json.category_name }}\n\n**User's Answers:**\n{{ $('Merge').item.json.formattedAnswers }}\n\n**Your Task:**\n1.  Analyze the answers to identify the user's biggest blind spots or opportunities for growth.\n2.  Provide exactly three unique, actionable tips.\n3.  **Crucially, when giving a tip, you MUST briefly reference the specific answer that prompted the tip.** For example, instead of a generic tip, say \"Since you're already sharing insights weekly (Q4), a great next step is to...\" This connects your advice directly to their reality.\n4.  End with a single, powerful motivational one-liner.\n\n**Output Format:**\nYou MUST respond with only a valid JSON object with two keys: \"tips\" (an array of three strings) and \"motivation\" (a single string). Do not include any text, notes, or markdown before or after the JSON object.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        48,
+        336
+      ],
+      "id": "9a3da95b-1c0e-4c04-9296-b6f9c0642dc4",
+      "name": "AI Analysis & Scoring"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "tips",
+              "name": "tips",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```|\"\"\"json|\"\"\"/g, '').trim()).tips }}",
+              "type": "array"
+            },
+            {
+              "id": "tips_combined",
+              "name": "tips_combined",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```|\"\"\"json|\"\"\"/g, '').trim()).tips.join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "motivation",
+              "name": "motivation",
+              "value": "={{ JSON.parse($json.output.replace(/```json|```|\"\"\"json|\"\"\"/g, '').trim()).motivation }}",
+              "type": "string"
+            },
+            {
+              "id": "name",
+              "name": "name",
+              "value": "={{ $('Merge').item.json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ $('Merge').item.json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "category_name",
+              "name": "category_name",
+              "value": "={{ $('Merge').item.json.category_name }}",
+              "type": "string"
+            },
+            {
+              "id": "totalScore",
+              "name": "totalScore",
+              "value": "={{ $('Merge').item.json.totalScore }}",
+              "type": "number"
+            },
+            {
+              "id": "timestamp",
+              "name": "timestamp",
+              "value": "={{ $now }}",
+              "type": "string"
+            },
+            {
+              "id": "scorePercentage",
+              "name": "scorePercentage",
+              "value": "={{ $('Merge').item.json.scorePercentage }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d74b6af3-b831-4b23-80b0-ee2df02559fa",
+      "name": "Format AI Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.3,
+      "position": [
+        400,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Format AI Output').item.json.email }}",
+        "subject": "You're the Hidden Gem — let's change that 💎",
+        "html": "=<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Your Standout4Growth Brand Assessment</title>\n<style>\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; padding: 30px 0; line-height: 1.7; }\n  .wrapper { max-width: 700px; margin: 0 auto; padding: 0 20px; }\n  .container { background-color: #ffffff; border-radius: 24px; box-shadow: 0 30px 90px rgba(205, 164, 94, 0.3); overflow: hidden; border: 2px solid rgba(205, 164, 94, 0.3); }\n  .header { background: linear-gradient(135deg, #1a1a1a, #222222); padding: 65px 40px; text-align: center; position: relative; }\n  .logo { max-width: 340px; width: 100%; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n  .content { padding: 60px 50px; background: #fafafa; }\n  .score-section { text-align: center; margin-bottom: 50px; }\n  .score-box { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08), rgba(205, 164, 94, 0.04)); border: 3px solid #cda45e; border-radius: 20px; padding: 45px 35px; }\n  .score-label { font-size: 13px; text-transform: uppercase; letter-spacing: 2.5px; color: #888; margin-bottom: 12px; font-weight: 800; }\n  .score { font-size: 72px; font-weight: 900; background: linear-gradient(135deg, #cda45e, #e8c547); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin: 15px 0; text-shadow: 0 3px 12px rgba(205, 164, 94, 0.2); }\n  .stage-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999; margin-top: 25px; margin-bottom: 10px; font-weight: 800; }\n  .stage { font-size: 32px; font-weight: 800; color: #1a1a1a; margin-top: 8px; }\n  .section { margin-bottom: 50px; }\n  .greeting { font-size: 28px; color: #cda45e; margin-bottom: 25px; font-weight: 900; }\n  .summary-text { font-size: 16px; color: #444; line-height: 1.9; padding: 32px; background: rgba(205, 164, 94, 0.05); border-left: 6px solid #cda45e; border-radius: 12px; }\n  .recommendations { background: rgba(205, 164, 94, 0.05); border-radius: 16px; padding: 40px; margin-top: 25px; border: 2px solid rgba(205, 164, 94, 0.2); }\n  ul { list-style: none; padding: 0; }\n  li { margin-bottom: 22px; padding-left: 40px; position: relative; font-size: 16px; color: #333; line-height: 1.8; font-weight: 500; }\n  li:last-child { margin-bottom: 0; }\n  li::before { content: '✦'; position: absolute; left: 0; color: #cda45e; font-size: 22px; font-weight: 900; }\n  .motivation { background: #1a1a1a; padding: 40px; border-radius: 16px; text-align: center; font-style: italic; font-size: 20px; color: #e8e8e8; border-left: 8px solid #cda45e; margin-top: 50px; line-height: 1.9; }\n  .cta-section { text-align: center; margin-top: 40px; }\n  .cta-button { display: inline-block; background: #cda45e; color: #1a1a1a; padding: 15px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.4); transition: all 0.3s ease; }\n  .cta-button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(205, 164, 94, 0.5); }\n  .footer { background: #1a1a1a; color: #999; text-align: center; padding: 35px; font-size: 13px; border-top: 4px solid #cda45e; }\n  .footer-brand { color: #cda45e; font-weight: 800; font-size: 14px; }\n\n  /* Mobile Responsive Styles */\n  @media only screen and (max-width: 600px) {\n    body { padding: 15px 0; }\n    .wrapper { padding: 0 10px; }\n    .container { border-radius: 16px; }\n    .header { padding: 40px 20px; }\n    .logo { max-width: 240px; }\n    .content { padding: 30px 20px; }\n    .score-box { padding: 30px 20px; border-radius: 16px; }\n    .score-label { font-size: 11px; letter-spacing: 1.5px; }\n    .score { font-size: 48px; }\n    .stage-label { font-size: 10px; letter-spacing: 1.5px; margin-top: 20px; }\n    .stage { font-size: 22px; }\n    .section { margin-bottom: 30px; }\n    .greeting { font-size: 20px; margin-bottom: 20px; }\n    .summary-text { font-size: 14px; line-height: 1.7; padding: 20px; border-left-width: 4px; border-radius: 10px; }\n    .recommendations { padding: 25px 20px; border-radius: 12px; margin-top: 20px; }\n    li { margin-bottom: 18px; padding-left: 30px; font-size: 14px; line-height: 1.7; }\n    li::before { font-size: 18px; }\n    .motivation { padding: 25px 20px; border-radius: 12px; font-size: 16px; line-height: 1.7; margin-top: 30px; border-left-width: 5px; }\n    .cta-section { margin-top: 30px; }\n    .cta-button { padding: 12px 28px; font-size: 14px; border-radius: 8px; }\n    .footer { padding: 25px 15px; font-size: 12px; }\n    .footer-brand { font-size: 13px; }\n  }\n\n  /* Extra Small Devices */\n  @media only screen and (max-width: 400px) {\n    .score { font-size: 42px; }\n    .stage { font-size: 20px; }\n    .greeting { font-size: 18px; }\n    .summary-text { font-size: 13px; padding: 18px; }\n    .recommendations { padding: 20px 15px; }\n    li { font-size: 13px; padding-left: 28px; }\n    .motivation { font-size: 15px; padding: 20px 15px; }\n  }\n</style>\n</head>\n<body>\n  <div class=\"wrapper\">\n    <div class=\"container\">\n      <div class=\"header\">\n        <img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\" class=\"logo\">\n      </div>\n      <div class=\"content\">\n        <div class=\"score-section\">\n          <div class=\"score-box\">\n            <div class=\"score-label\">Your Standout Score</div>\n            <div class=\"score\">{{ $('Format AI Output').item.json.scorePercentage }}%</div>\n            <div class=\"stage-label\">Your Brand Category</div>\n            <div class=\"stage\">{{ $('Format AI Output').item.json.category_name }}</div>\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2 class=\"greeting\">Hi {{ $('Format AI Output').item.json.name }}, here's your personalized analysis:</h2>\n          <div class=\"summary-text\">\n            You scored in the <strong>Hidden Gem</strong> category, which means you're great at what you do, but the world hasn't seen enough of it yet. That's not failure; it's untapped potential. Every day, someone with less experience is landing the visibility you deserve. It's time to fix that.\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2 class=\"greeting\">Your Actionable Recommendations</h2>\n          <div class=\"recommendations\">\n            <ul>\n              {{ $('Format AI Output').item.json.tips.map(tip => `<li>${tip}</li>`).join('') }}\n            </ul>\n          </div>\n        </div>\n        <div class=\"motivation\">\n          <p>{{ $('Format AI Output').item.json.motivation }}</p>\n        </div>\n        <div class=\"cta-section\">\n            <a href=\"YOUR_LINK_HERE\" class=\"cta-button\">Book Your 1-on-1 Call</a>\n        </div>\n      </div>\n      <div class=\"footer\">\n        <div class=\"footer-brand\">★ Standout4Growth ★</div>\n        <p>© 2025 | The Home of Personal Branding Excellence</p>\n      </div>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "b78f3ab0-3862-492e-9540-67119cd44476",
+      "name": "Email Hidden Gem",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        112
+      ],
+      "webhookId": "3b44ed11-55a0-47d3-9ccf-8f54f7d92c9a",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Format AI Output').item.json.email }}",
+        "subject": "You're the Rising Expert. Let's Get You Noticed",
+        "html": "=<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Your Standout4Growth Brand Assessment</title>\n<style>\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; padding: 30px 0; line-height: 1.7; }\n  .wrapper { max-width: 700px; margin: 0 auto; padding: 0 20px; }\n  .container { background-color: #ffffff; border-radius: 24px; box-shadow: 0 30px 90px rgba(205, 164, 94, 0.3); overflow: hidden; border: 2px solid rgba(205, 164, 94, 0.3); }\n  .header { background: linear-gradient(135deg, #1a1a1a, #222222); padding: 65px 40px; text-align: center; position: relative; }\n  .logo { max-width: 340px; width: 100%; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n  .content { padding: 60px 50px; background: #fafafa; }\n  .score-section { text-align: center; margin-bottom: 50px; }\n  .score-box { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08), rgba(205, 164, 94, 0.04)); border: 3px solid #cda45e; border-radius: 20px; padding: 45px 35px; }\n  .score-label { font-size: 13px; text-transform: uppercase; letter-spacing: 2.5px; color: #888; margin-bottom: 12px; font-weight: 800; }\n  .score { font-size: 72px; font-weight: 900; background: linear-gradient(135deg, #cda45e, #e8c547); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin: 15px 0; text-shadow: 0 3px 12px rgba(205, 164, 94, 0.2); }\n  .stage-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999; margin-top: 25px; margin-bottom: 10px; font-weight: 800; }\n  .stage { font-size: 32px; font-weight: 800; color: #1a1a1a; margin-top: 8px; }\n  .section { margin-bottom: 50px; }\n  .greeting { font-size: 28px; color: #cda45e; margin-bottom: 25px; font-weight: 900; }\n  .summary-text { font-size: 16px; color: #444; line-height: 1.9; padding: 32px; background: rgba(205, 164, 94, 0.05); border-left: 6px solid #cda45e; border-radius: 12px; }\n  .recommendations { background: rgba(205, 164, 94, 0.05); border-radius: 16px; padding: 40px; margin-top: 25px; border: 2px solid rgba(205, 164, 94, 0.2); }\n  ul { list-style: none; padding: 0; }\n  li { margin-bottom: 22px; padding-left: 40px; position: relative; font-size: 16px; color: #333; line-height: 1.8; font-weight: 500; }\n  li:last-child { margin-bottom: 0; }\n  li::before { content: '✦'; position: absolute; left: 0; color: #cda45e; font-size: 22px; font-weight: 900; }\n  .motivation { background: #1a1a1a; padding: 40px; border-radius: 16px; text-align: center; font-style: italic; font-size: 20px; color: #e8e8e8; border-left: 8px solid #cda45e; margin-top: 50px; line-height: 1.9; }\n  .cta-section { text-align: center; margin-top: 40px; }\n  .cta-button { display: inline-block; background: #cda45e; color: #1a1a1a; padding: 15px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.4); transition: all 0.3s ease; }\n  .cta-button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(205, 164, 94, 0.5); }\n  .footer { background: #1a1a1a; color: #999; text-align: center; padding: 35px; font-size: 13px; border-top: 4px solid #cda45e; }\n  .footer-brand { color: #cda45e; font-weight: 800; font-size: 14px; }\n\n  /* Mobile Responsive Styles */\n  @media only screen and (max-width: 600px) {\n    body { padding: 15px 0; }\n    .wrapper { padding: 0 10px; }\n    .container { border-radius: 16px; }\n    .header { padding: 40px 20px; }\n    .logo { max-width: 240px; }\n    .content { padding: 30px 20px; }\n    .score-box { padding: 30px 20px; border-radius: 16px; }\n    .score-label { font-size: 11px; letter-spacing: 1.5px; }\n    .score { font-size: 48px; }\n    .stage-label { font-size: 10px; letter-spacing: 1.5px; margin-top: 20px; }\n    .stage { font-size: 22px; }\n    .section { margin-bottom: 30px; }\n    .greeting { font-size: 20px; margin-bottom: 20px; }\n    .summary-text { font-size: 14px; line-height: 1.7; padding: 20px; border-left-width: 4px; border-radius: 10px; }\n    .recommendations { padding: 25px 20px; border-radius: 12px; margin-top: 20px; }\n    li { margin-bottom: 18px; padding-left: 30px; font-size: 14px; line-height: 1.7; }\n    li::before { font-size: 18px; }\n    .motivation { padding: 25px 20px; border-radius: 12px; font-size: 16px; line-height: 1.7; margin-top: 30px; border-left-width: 5px; }\n    .cta-section { margin-top: 30px; }\n    .cta-button { padding: 12px 28px; font-size: 14px; border-radius: 8px; }\n    .footer { padding: 25px 15px; font-size: 12px; }\n    .footer-brand { font-size: 13px; }\n  }\n\n  /* Extra Small Devices */\n  @media only screen and (max-width: 400px) {\n    .score { font-size: 42px; }\n    .stage { font-size: 20px; }\n    .greeting { font-size: 18px; }\n    .summary-text { font-size: 13px; padding: 18px; }\n    .recommendations { padding: 20px 15px; }\n    li { font-size: 13px; padding-left: 28px; }\n    .motivation { font-size: 15px; padding: 20px 15px; }\n    .cta-button { padding: 12px 20px; font-size: 13px; }\n  }\n</style>\n</head>\n<body>\n  <div class=\"wrapper\">\n    <div class=\"container\">\n      <div class=\"header\">\n        <img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\" class=\"logo\">\n      </div>\n      <div class=\"content\">\n        <div class=\"score-section\">\n          <div class=\"score-box\">\n            <div class=\"score-label\">Your Standout Score</div>\n            <div class=\"score\">{{ $('Format AI Output').item.json.scorePercentage }}%</div>\n            <div class=\"stage-label\">Your Brand Category</div>\n            <div class=\"stage\">{{ $('Format AI Output').item.json.category_name }}</div>\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2 class=\"greeting\">Hi {{ $('Format AI Output').item.json.name }}, here's your personalized analysis:</h2>\n          <div class=\"summary-text\">\n            You scored as a <strong>Rising Expert</strong>; respected, credible, and ready for that next leap in visibility. You've done the work. Now it's time to make your reputation work for you. The difference between being known in your office and being recognized in your industry is one decision away.\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2 class=\"greeting\">Your Actionable Recommendations</h2>\n          <div class=\"recommendations\">\n            <ul>\n              {{ $('Format AI Output').item.json.tips.map(tip => `<li>${tip}</li>`).join('') }}\n            </ul>\n          </div>\n        </div>\n        <div class=\"motivation\">\n          <p>{{ $('Format AI Output').item.json.motivation }}</p>\n        </div>\n        <div class=\"cta-section\">\n            <a href=\"YOUR_LINK_HERE\" class=\"cta-button\">Join the Career Breakthrough Accelerator</a>\n        </div>\n      </div>\n      <div class=\"footer\">\n        <div class=\"footer-brand\">★ Standout4Growth ★</div>\n        <p>© 2025 | The Home of Personal Branding Excellence</p>\n      </div>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "203f9be3-756b-4bfd-b9fc-847b8cd3c6ce",
+      "name": "Email Rising Expert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        304
+      ],
+      "webhookId": "350a3386-ad55-4987-839c-51b561d90d10",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Format AI Output').item.json.email }}",
+        "subject": "You're the In-Demand Influencer. Here's Your Next Move",
+        "html": "=<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Your Standout4Growth Brand Assessment</title>\n<style>\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0a0a0a; padding: 30px 0; line-height: 1.7; }\n  .wrapper { max-width: 700px; margin: 0 auto; padding: 0 20px; }\n  .container { background-color: #ffffff; border-radius: 24px; box-shadow: 0 30px 90px rgba(205, 164, 94, 0.3); overflow: hidden; border: 2px solid rgba(205, 164, 94, 0.3); }\n  .header { background: linear-gradient(135deg, #1a1a1a, #222222); padding: 65px 40px; text-align: center; position: relative; }\n  .logo { max-width: 340px; width: 100%; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n  .content { padding: 60px 50px; background: #fafafa; }\n  .score-section { text-align: center; margin-bottom: 50px; }\n  .score-box { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08), rgba(205, 164, 94, 0.04)); border: 3px solid #cda45e; border-radius: 20px; padding: 45px 35px; }\n  .score-label { font-size: 13px; text-transform: uppercase; letter-spacing: 2.5px; color: #888; margin-bottom: 12px; font-weight: 800; }\n  .score { font-size: 72px; font-weight: 900; background: linear-gradient(135deg, #cda45e, #e8c547); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin: 15px 0; text-shadow: 0 3px 12px rgba(205, 164, 94, 0.2); }\n  .stage-label { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #999; margin-top: 25px; margin-bottom: 10px; font-weight: 800; }\n  .stage { font-size: 32px; font-weight: 800; color: #1a1a1a; margin-top: 8px; }\n  .section { margin-bottom: 50px; }\n  .greeting { font-size: 28px; color: #cda45e; margin-bottom: 25px; font-weight: 900; }\n  .summary-text { font-size: 16px; color: #444; line-height: 1.9; padding: 32px; background: rgba(205, 164, 94, 0.05); border-left: 6px solid #cda45e; border-radius: 12px; }\n  .recommendations { background: rgba(205, 164, 94, 0.05); border-radius: 16px; padding: 40px; margin-top: 25px; border: 2px solid rgba(205, 164, 94, 0.2); }\n  ul { list-style: none; padding: 0; }\n  li { margin-bottom: 22px; padding-left: 40px; position: relative; font-size: 16px; color: #333; line-height: 1.8; font-weight: 500; }\n  li:last-child { margin-bottom: 0; }\n  li::before { content: '✦'; position: absolute; left: 0; color: #cda45e; font-size: 22px; font-weight: 900; }\n  .motivation { background: #1a1a1a; padding: 40px; border-radius: 16px; text-align: center; font-style: italic; font-size: 20px; color: #e8e8e8; border-left: 8px solid #cda45e; margin-top: 50px; line-height: 1.9; }\n  .cta-section { text-align: center; margin-top: 40px; }\n  .cta-button { display: inline-block; background: #cda45e; color: #1a1a1a; padding: 15px 35px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 16px; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.4); transition: all 0.3s ease; }\n  .cta-button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(205, 164, 94, 0.5); }\n  .footer { background: #1a1a1a; color: #999; text-align: center; padding: 35px; font-size: 13px; border-top: 4px solid #cda45e; }\n  .footer-brand { color: #cda45e; font-weight: 800; font-size: 14px; }\n  \n  @media only screen and (max-width: 600px) {\n    body { padding: 15px 0; }\n    .wrapper { padding: 0 10px; }\n    .container { border-radius: 16px; }\n    .header { padding: 40px 20px; }\n    .logo { max-width: 280px; }\n    .content { padding: 30px 20px; }\n    .score-section { margin-bottom: 35px; }\n    .score-box { padding: 30px 20px; border-radius: 16px; }\n    .score-label { font-size: 11px; letter-spacing: 2px; }\n    .score { font-size: 56px; }\n    .stage-label { font-size: 10px; letter-spacing: 1.5px; }\n    .stage { font-size: 24px; }\n    .section { margin-bottom: 35px; }\n    .greeting { font-size: 22px; margin-bottom: 18px; }\n    .summary-text { font-size: 15px; padding: 20px; border-radius: 10px; }\n    .recommendations { padding: 25px 20px; border-radius: 12px; }\n    li { margin-bottom: 18px; padding-left: 32px; font-size: 15px; }\n    li::before { font-size: 18px; }\n    .motivation { padding: 25px 20px; font-size: 17px; margin-top: 35px; border-radius: 12px; }\n    .cta-section { margin-top: 30px; }\n    .cta-button { padding: 14px 28px; font-size: 15px; border-radius: 8px; }\n    .footer { padding: 25px 20px; font-size: 12px; }\n    .footer-brand { font-size: 13px; }\n  }\n</style>\n</head>\n<body>\n  <div class=\"wrapper\">\n    <div class=\"container\">\n      <div class=\"header\">\n        <img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\" class=\"logo\">\n      </div>\n      <div class=\"content\">\n        <div class=\"score-section\">\n          <div class=\"score-box\">\n            <div class=\"score-label\">Your Standout Score</div>\n            <div class=\"score\">{{ $('Format AI Output').item.json.scorePercentage }}%</div>\n            <div class=\"stage-label\">Your Brand Category</div>\n            <div class=\"stage\">{{ $('Format AI Output').item.json.category_name }}</div>\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2 class=\"greeting\">Hi {{ $('Format AI Output').item.json.name }}, here's your personalized analysis:</h2>\n          <div class=\"summary-text\">\n            Your Standout Score shows you've already built strong visibility and credibility. Well done! Now it's time to <strong>scale your influence.</strong> The next frontier is turning your presence into a legacy—this means media features, partnerships, and thought leadership that amplifies your voice.\n          </div>\n        </div>\n        <div class=\"section\">\n          <h2>Your Actionable Recommendations</h2>\n          <div class=\"recommendations\">\n            <ul>\n              {{ $('Format AI Output').item.json.tips.map(tip => `<li>${tip}</li>`).join('') }}\n            </ul>\n          </div>\n        </div>\n        <div class=\"motivation\">\n          <p>{{ $('Format AI Output').item.json.motivation }}</p>\n        </div>\n        <div class=\"cta-section\">\n            <a href=\"YOUR_LINK_HERE\" class=\"cta-button\">Apply for \"Lead with Impact\" 1:1 Coaching</a>\n        </div>\n      </div>\n      <div class=\"footer\">\n        <div class=\"footer-brand\">★ Standout4Growth ★</div>\n        <p>© 2025 | The Home of Personal Branding Excellence</p>\n      </div>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "af6a0285-d42f-4664-9742-6006f96880bb",
+      "name": "Email In-Demand Influencer",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        848,
+        496
+      ],
+      "webhookId": "ca7e2866-1d8e-4e54-89d7-46f86d9bf438",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgcgl0cV3BqIwSG",
+          "mode": "list",
+          "cachedResultName": "AI Brand Assessments",
+          "cachedResultUrl": "https://airtable.com/appgcgl0cV3BqIwSG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblrCSE8BThoiXaIo",
+          "mode": "list",
+          "cachedResultName": "Brand Assessments",
+          "cachedResultUrl": "https://airtable.com/appgcgl0cV3BqIwSG/tblrCSE8BThoiXaIo"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Success",
+            "Score": "={{ $('Format AI Output').item.json.totalScore }}",
+            "Tips": "={{ $('Format AI Output').item.json.tips_combined }}",
+            "Motivation": "={{ $('Format AI Output').item.json.motivation }}",
+            "Name": "={{ $('Format AI Output').item.json.name }}",
+            "Email": "={{ $('Format AI Output').item.json.email }}",
+            "Category": "={{ $('Format AI Output').item.json.category_name }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "The Hidden Gem",
+                  "value": "The Hidden Gem"
+                },
+                {
+                  "name": "The Rising Expert",
+                  "value": "The Rising Expert"
+                },
+                {
+                  "name": "The In-Demand Influencer",
+                  "value": "The In-Demand Influencer"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tips",
+              "displayName": "Tips",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Motivation",
+              "displayName": "Motivation",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Success",
+                  "value": "Success"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "2f994c78-cf4e-4442-a06c-f7e8602a151f",
+      "name": "Log to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        224
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GkCoUm7M9ufnmg85",
+          "name": "AI Brand Assessments"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": true, \"message\": \"Assessment completed successfully!\", \"score\": {{ $('Format AI Output').item.json.totalScore }}, \"scorePercentage\": {{ $('Format AI Output').item.json.scorePercentage }}, \"category\": \"{{ $('Format AI Output').item.json.category_name }}\" }",
+        "options": {}
+      },
+      "id": "cc454da5-6271-4469-a272-ede1b31da7f1",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1296,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appgcgl0cV3BqIwSG",
+          "mode": "list",
+          "cachedResultName": "AI Brand Assessments",
+          "cachedResultUrl": "https://airtable.com/appgcgl0cV3BqIwSG"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblrCSE8BThoiXaIo",
+          "mode": "list",
+          "cachedResultName": "Brand Assessments",
+          "cachedResultUrl": "https://airtable.com/appgcgl0cV3BqIwSG/tblrCSE8BThoiXaIo"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Error",
+            "Score": 0,
+            "Email": "="
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "The Hidden Gem",
+                  "value": "The Hidden Gem"
+                },
+                {
+                  "name": "The Rising Expert",
+                  "value": "The Rising Expert"
+                },
+                {
+                  "name": "The In-Demand Influencer",
+                  "value": "The In-Demand Influencer"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tips",
+              "displayName": "Tips",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Motivation",
+              "displayName": "Motivation",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Success",
+                  "value": "Success"
+                },
+                {
+                  "name": "Error",
+                  "value": "Error"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "adc98504-3b83-443b-8b1a-c94566c73d61",
+      "name": "Log Error to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        400,
+        432
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GkCoUm7M9ufnmg85",
+          "name": "AI Brand Assessments"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"success\": false, \"message\": \"An error occurred processing your assessment. Our team has been notified and will reach out shortly.\" }",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "id": "3f129a9a-60a5-4407-9ce4-b1422f26c698",
+      "name": "Error Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        128,
+        560
+      ],
+      "id": "d618ba11-4f0e-4983-bbd8-92d9efb3e13b",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category_name }}",
+                    "rightValue": "The Hidden Gem",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "48c45e4e-53a0-4ef3-983c-5bbe0bd405dd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Path 1 (Output 0)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "791a2607-7396-4438-9f91-6275049937f0",
+                    "leftValue": "={{ $json.category_name }}",
+                    "rightValue": "The Rising Expert",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Path 2 (Output 1)"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "faf8ffae-ba96-49c8-8d7a-b8fcafe84789",
+                    "leftValue": "={{ $json.category_name }}",
+                    "rightValue": "The In-Demand Influencer",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Path 3 (Output 2)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        624,
+        208
+      ],
+      "id": "89a596ad-2ec2-4504-9abe-14482e550470",
+      "name": "Email Router"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -176,
+        336
+      ],
+      "id": "f3e2ebf7-1d48-4235-ba8b-9f0c1ea87c29",
+      "name": "Merge"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Submission Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Score Router",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Hidden Gem": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Rising Expert": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set In-Demand Influencer": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Analysis & Scoring": {
+      "main": [
+        [
+          {
+            "node": "Log Error to Airtable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format AI Output": {
+      "main": [
+        [
+          {
+            "node": "Email Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Hidden Gem": {
+      "main": [
+        [
+          {
+            "node": "Log to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Rising Expert": {
+      "main": [
+        [
+          {
+            "node": "Log to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email In-Demand Influencer": {
+      "main": [
+        [
+          {
+            "node": "Log to Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error to Airtable": {
+      "main": [
+        [
+          {
+            "node": "Error Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Analysis & Scoring",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Router": {
+      "main": [
+        [
+          {
+            "node": "Set Hidden Gem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Rising Expert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set In-Demand Influencer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Router": {
+      "main": [
+        [
+          {
+            "node": "Email Hidden Gem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Rising Expert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email In-Demand Influencer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Analysis & Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "8ec80d3c-b845-4c69-8092-f5d9e3405a82",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37b22ae5b73a9dce0788d7d4a3f919a87e631d67723f1ebc928b1ad2847f83e6"
+  },
+  "id": "B8YEXDznOD8QmlRz",
+  "tags": []
+}

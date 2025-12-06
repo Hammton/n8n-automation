@@ -1,0 +1,1789 @@
+{
+  "name": "Lead Gen Subscriber AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// 1. MODIFY VALIDATION NODE - Only require email\nconst req = $input.first().json;\n\n// For email subscription, only email is required\nif (!req.email?.trim()) {\n  return [{json: {...req, error: \"Email is required\"}}];\n}\n\nreturn [{\n  json: {\n    email: req.email.toLowerCase().trim(),\n    source: 'website_subscription',\n    ts: new Date().toISOString(),\n    // Optional fields that might come from form\n    name: req.name?.trim() || '', \n    interest: req.interest || 'newsletter' // personal branding, LinkedIn help, etc.\n  }\n}];"
+      },
+      "id": "fcfe132a-9a6e-4428-886d-adbf8a616e63",
+      "name": "Validate & Clean1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1792,
+        1072
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "filterByFormula": "={{ \"Email = '\" + $('Validate & Clean1').item.json.body['fields[email][value]'] + \"'\" }}",
+        "options": {
+          "fields": [
+            "Email"
+          ]
+        }
+      },
+      "id": "fd3fcbad-8af3-4e25-b853-479e48bd84b0",
+      "name": "Check Duplicate1",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        1072
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "columns": {
+          "0": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Company": "={{ $json.company }}",
+            "Source": "={{ $json.source }}",
+            "Status": "New",
+            "Created": "={{ $json.ts }}"
+          },
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Validate & Clean1').item.json.name || 'Subscriber' }}\"",
+            "Source": "Website Subscription",
+            "Created": "={{ $('Check Duplicate1').item.json.createdTime }}",
+            "Email": "={{ $json.Email }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Unsubscribed",
+                  "value": "Unsubscribed"
+                },
+                {
+                  "name": "Email Sequence Completed",
+                  "value": "Email Sequence Completed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "aae44a50-e4b1-4762-a62a-599b16a872b4",
+      "name": "Create Lead1",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        1072
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "=thought leadership personal branding trends\" OR \"LinkedIn content strategy\" {{ new Date().getFullYear() }}"
+            },
+            {
+              "name": "num",
+              "value": "5"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {}
+          },
+          "timeout": 8000
+        }
+      },
+      "id": "dfa0d241-361f-42ea-9526-a8bcf1f00180",
+      "name": "Research Insights1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -848,
+        1072
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SjuzPdTyjolsYvlt",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create Lead1').item.json.id }}",
+            "Status": "Contacted",
+            "Name": "={{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}",
+            "Source": "=",
+            "Email": "={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}",
+            "Created": "={{ $('Create Lead1').item.json.createdTime }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Unsubscribed",
+                  "value": "Unsubscribed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "8ef91f1b-3a1a-4560-82b3-6b4b3e00f9f9",
+      "name": "Update Status1",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"duplicate\",\n  \"message\": \"This email is already subscribed.\"\n}\n",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "3d957d83-bc90-4bb7-8804-789a84ebfd4c",
+      "name": "Webhook Reply1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -1072,
+        1264
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-capture",
+        "options": {}
+      },
+      "id": "ac2d018d-5ed4-4034-b623-9af3fe6da9b7",
+      "name": "Lead Capture Webform1",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2016,
+        1072
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "cc845889-9d57-42f3-bb79-9ca04c990160"
+    },
+    {
+      "parameters": {
+        "content": "## Lead Generation AI Agent\nCaptures leads via webform → Validates data → Stores in Airtable → Researches insights → Generates personalized emails → Sends via Mandrill API → Updates status",
+        "height": 120,
+        "width": 1200
+      },
+      "id": "6ce92be4-3552-4725-8a7a-e6ee2a72bf56",
+      "name": "Lead Generation Process1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        880
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "e6c812e7-9ab7-4a33-b1b3-b865d80999e0",
+                    "leftValue": "={{ $json.Email }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "NEW LEAD"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "633693ec-76ee-4e16-9a45-569025bde1fb",
+                    "leftValue": "={{ $json.Email }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "DUPLICATE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1344,
+        1072
+      ],
+      "id": "4fb9072c-557d-4e24-98fd-97245c2e7d6f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "9571d29a-f1fc-46dd-8dc1-ee7496ae1b3e",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        1072
+      ],
+      "webhookId": "0fe2f78f-2478-4cd0-8347-193d1a0ab82c"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "id": "={{ $('Create Lead1').item.json.id }}",
+        "options": {}
+      },
+      "id": "6cef9da8-2ac0-4b1e-8733-e19c488cf3ed",
+      "name": "Check Status Day 2",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        400,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "status-check-day-2",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Unsubscribed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STOP"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        624,
+        1072
+      ],
+      "id": "bdff470b-5a70-449b-b93c-7d6db42d5801",
+      "name": "Status Switch Day 2",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Lead Capture Webform1').item.json.body['fields[email][value]'] }}",
+        "subject": "=Day 2: The #1 Secret to a Powerful Personal Brand",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Standout4Growth - Day 2</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px 0; }\n.container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(205, 164, 94, 0.3), 0 0 60px rgba(205, 164, 94, 0.15), inset 0 1px 0 rgba(255,255,255,0.2); border: 2px solid rgba(205, 164, 94, 0.3); }\n.header { background: linear-gradient(135deg, #1a1a1a 0%, #222222 30%, #2a2a2a 60%, #1f1f1f 100%); padding: 60px 30px; text-align: center; position: relative; overflow: hidden; }\n.header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(205, 164, 94, 0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header img { max-width: 320px; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n.day-badge { position: absolute; top: 25px; right: 25px; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(205, 164, 94, 0.5); border: 2px solid rgba(255,255,255,0.3); }\n.content { padding: 60px 45px; color: #2c2c2c; line-height: 2; font-size: 16px; background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%); position: relative; }\n.content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #cda45e, transparent); }\n.content h1 { color: #cda45e; font-size: 36px; margin-bottom: 25px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 3px 8px rgba(205, 164, 94, 0.2); line-height: 1.2; }\n.content h2 { color: #1a1a1a; font-size: 26px; margin: 40px 0 22px 0; font-weight: 800; letter-spacing: -0.5px; border-bottom: 3px solid #cda45e; padding-bottom: 15px; }\n.content h3 { color: #cda45e; font-size: 20px; margin: 32px 0 16px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }\n.content p { margin-bottom: 22px; color: #444444; line-height: 2; }\n\n/* List Styles - Fixed for Email Clients */\n.content ol, .content ul { margin: 30px 0; padding-left: 0; list-style: none; }\n.content li { margin-bottom: 24px; padding-left: 0; display: block; }\n.content li strong { font-weight: 900 !important; color: #1a1a1a; display: block; margin-bottom: 8px; font-size: 1.05em; }\n.content li::before { content: attr(data-number); display: inline-block; width: 32px; height: 32px; background: #cda45e; color: #1a1a1a; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 16px; flex-shrink: 0; }\n\n.highlight { color: #cda45e; font-weight: 900; font-size: 1.05em; }\n.content a { color: #cda45e; text-decoration: none; font-weight: 800; position: relative; border-bottom: 3px solid #cda45e; transition: all 0.3s ease; }\n.content a:hover { color: #e8c547; border-bottom-color: #e8c547; }\n.cta-button { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 50%, #cda45e 100%); color: #1a1a1a !important; padding: 20px 52px; border-radius: 60px; text-align: center; text-decoration: none; font-weight: 900; margin: 32px 0; font-size: 17px; border: 3px solid rgba(205, 164, 94, 0.5); cursor: pointer; box-shadow: 0 12px 40px rgba(205, 164, 94, 0.45), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden; }\n.cta-button::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%); transform: translate(25%, 25%); }\n.cta-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 50px rgba(205, 164, 94, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }\n.premium-highlight { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08) 0%, rgba(205, 164, 94, 0.04) 100%); border: 2px solid #cda45e; border-left: 8px solid #cda45e; padding: 28px; margin: 32px 0; border-radius: 14px; position: relative; overflow: hidden; }\n.premium-highlight::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; }\n.premium-highlight h4 { color: #cda45e; font-weight: 900; margin-bottom: 14px; font-size: 18px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 1px; }\n.premium-highlight p { color: #333333; position: relative; z-index: 1; margin-bottom: 0; }\n.divider-premium { border: none; height: 4px; background: linear-gradient(90deg, transparent, #cda45e 20%, #cda45e 80%, transparent); margin: 40px 0; position: relative; }\n.divider-premium::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: #ffffff; border: 4px solid #cda45e; border-radius: 50%; }\n.quote-premium { background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%); border-left: 8px solid #cda45e; padding: 35px; margin: 40px 0; border-radius: 14px; font-style: italic; color: #ffffff; line-height: 2.1; position: relative; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.2); }\n.quote-premium::before { content: '\"'; font-size: 100px; color: #cda45e; opacity: 0.25; position: absolute; top: -30px; left: -10px; }\n.quote-premium p { color: #e8e8e8; position: relative; z-index: 1; margin: 0; font-size: 17px; }\n.footer { background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1f1f1f 100%); padding: 45px 30px; text-align: center; color: #999999; font-size: 13px; border-top: 4px solid #cda45e; position: relative; }\n.footer::before { content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.footer p { margin: 14px 0; }\n.footer-contact { font-weight: 900; color: #cda45e; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }\n.social-icons { margin: 25px 0 30px 0; }\n.social-icons a { display: inline-block; margin: 0 16px; color: #cda45e; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease; position: relative; }\n.social-icons a::before { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: #cda45e; transform: scaleX(0); transition: transform 0.3s ease; }\n.social-icons a:hover { color: #e8c547; transform: translateY(-3px); }\n.social-icons a:hover::before { transform: scaleX(1); }\n.signature { margin-top: 45px; padding-top: 30px; border-top: 3px solid #cda45e; text-align: left; color: #333333; }\n.signature p { margin: 12px 0; color: #666666; line-height: 1.8; }\n.signature-name { font-weight: 900; color: #1a1a1a; margin: 18px 0 8px 0; font-size: 18px; }\n.signature-title { color: #cda45e; font-size: 14px; font-weight: 800; letter-spacing: 1px; }\n.signature-subtitle { color: #999999; font-size: 13px; margin-top: 4px; }\n.unsubscribe { color: #999999; text-decoration: none; font-size: 12px; margin-top: 25px; padding-top: 25px; border-top: 2px solid #e0e0e0; transition: all 0.3s ease; font-weight: 600; }\n.unsubscribe:hover { color: #cda45e; }\n\n/* Mobile Responsive */\n@media (max-width: 600px) {\n  .container { margin: 10px; }\n  .content { padding: 40px 25px; }\n  .content li::before { width: 28px; height: 28px; line-height: 28px; font-size: 13px; margin-right: 12px; }\n  .content li strong { font-size: 1em; }\n}\n</style>\n</head>\n<body>\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n<tr>\n<td align=\"center\">\n<div class=\"container\">\n<div class=\"header\">\n<div class=\"day-badge\">Day 2</div>\n<img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\">\n</div>\n<div class=\"content\">\n{{ $('Generate Email Day 2').item.json.output }}\n</div>\n<div class=\"signature\">\n<p>Your guide on this journey,</p>\n<div class=\"signature-name\">Alice Ngatia</div>\n<div class=\"signature-title\">Founder & Chief Visionary</div>\n<div class=\"signature-subtitle\">Standout4Growth | Transform Your Narrative</div>\n</div>\n<div class=\"footer\">\n<div class=\"footer-contact\">★ Standout4Growth ★</div>\n<p>The Home of Personal Branding Excellence</p>\n<p>📍 Nairobi, Kenya | 📞 +254 115841877</p>\n<div class=\"social-icons\">\n<a href=\"https://standout4growth.com\">Website</a>\n<a href=\"https://linkedin.com/company/standout4growth\">LinkedIn</a>\n<a href=\"https://facebook.com/standout4growth\">Facebook</a>\n<a href=\"https://twitter.com/standout4growth\">Twitter</a>\n<a href=\"https://instagram.com/standout4growth\">Instagram</a>\n</div>\n<a href=\"https://standout4growth.com/unsubscribe?email={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}\" class=\"unsubscribe\">Unsubscribe from this sequence</a>\n</div>\n</div>\n</td>\n</tr>\n</table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1200,
+        1072
+      ],
+      "id": "7f37b94a-79f3-4af3-b7d6-c3ed58bb3a18",
+      "name": "Send Email Day 2",
+      "webhookId": "4b4f5347-2dc8-48b5-9e36-be62feb2d494",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "16132fbf-5cdd-46f5-9c50-1fbba68478c2",
+      "name": "Wait 1 Day 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1424,
+        1072
+      ],
+      "webhookId": "51f78bc1-a5e6-4b9b-96ba-4ff1fdaac9ba"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "id": "={{ $('Create Lead1').item.json.id }}",
+        "options": {}
+      },
+      "id": "160536e4-146d-48a2-947b-46bdc52453f6",
+      "name": "Check Status Day 3",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "status-check-day-3",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Unsubscribed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STOP"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1872,
+        1072
+      ],
+      "id": "f1eefea8-49d7-4cd0-890d-496e028034be",
+      "name": "Status Switch Day 3"
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}",
+        "subject": "=Day 3: From Expert to Influencer: Your Content Roadmap",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Standout4Growth - Day 3</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px 0; }\n.container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(205, 164, 94, 0.3), 0 0 60px rgba(205, 164, 94, 0.15), inset 0 1px 0 rgba(255,255,255,0.2); border: 2px solid rgba(205, 164, 94, 0.3); }\n.header { background: linear-gradient(135deg, #1a1a1a 0%, #222222 30%, #2a2a2a 60%, #1f1f1f 100%); padding: 60px 30px; text-align: center; position: relative; overflow: hidden; }\n.header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(205, 164, 94, 0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header img { max-width: 320px; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n.day-badge { position: absolute; top: 25px; right: 25px; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(205, 164, 94, 0.5); border: 2px solid rgba(255,255,255,0.3); }\n.content { padding: 60px 45px; color: #2c2c2c; line-height: 2; font-size: 16px; background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%); position: relative; }\n.content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #cda45e, transparent); }\n.content h1 { color: #cda45e; font-size: 36px; margin-bottom: 25px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 3px 8px rgba(205, 164, 94, 0.2); line-height: 1.2; }\n.content h2 { color: #1a1a1a; font-size: 26px; margin: 40px 0 22px 0; font-weight: 800; letter-spacing: -0.5px; border-bottom: 3px solid #cda45e; padding-bottom: 15px; }\n.content h3 { color: #cda45e; font-size: 20px; margin: 32px 0 16px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }\n.content p { margin-bottom: 22px; color: #444444; line-height: 2; }\n\n/* List Styles - Fixed for Email Clients */\n.content ol, .content ul { margin: 30px 0; padding-left: 0; list-style: none; }\n.content li { margin-bottom: 24px; padding-left: 0; display: block; }\n.content li strong { font-weight: 900 !important; color: #1a1a1a; display: block; margin-bottom: 8px; font-size: 1.05em; }\n.content li::before { content: attr(data-number); display: inline-block; width: 32px; height: 32px; background: #cda45e; color: #1a1a1a; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 16px; flex-shrink: 0; }\n\n.highlight { color: #cda45e; font-weight: 900; font-size: 1.05em; }\n.content a { color: #cda45e; text-decoration: none; font-weight: 800; position: relative; border-bottom: 3px solid #cda45e; transition: all 0.3s ease; }\n.content a:hover { color: #e8c547; border-bottom-color: #e8c547; }\n.cta-button { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 50%, #cda45e 100%); color: #1a1a1a !important; padding: 20px 52px; border-radius: 60px; text-align: center; text-decoration: none; font-weight: 900; margin: 32px 0; font-size: 17px; border: 3px solid rgba(205, 164, 94, 0.5); cursor: pointer; box-shadow: 0 12px 40px rgba(205, 164, 94, 0.45), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden; }\n.cta-button::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%); transform: translate(25%, 25%); }\n.cta-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 50px rgba(205, 164, 94, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }\n.premium-highlight { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08) 0%, rgba(205, 164, 94, 0.04) 100%); border: 2px solid #cda45e; border-left: 8px solid #cda45e; padding: 28px; margin: 32px 0; border-radius: 14px; position: relative; overflow: hidden; }\n.premium-highlight::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; }\n.premium-highlight h4 { color: #cda45e; font-weight: 900; margin-bottom: 14px; font-size: 18px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 1px; }\n.premium-highlight p { color: #333333; position: relative; z-index: 1; margin-bottom: 0; }\n.divider-premium { border: none; height: 4px; background: linear-gradient(90deg, transparent, #cda45e 20%, #cda45e 80%, transparent); margin: 40px 0; position: relative; }\n.divider-premium::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: #ffffff; border: 4px solid #cda45e; border-radius: 50%; }\n.quote-premium { background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%); border-left: 8px solid #cda45e; padding: 35px; margin: 40px 0; border-radius: 14px; font-style: italic; color: #ffffff; line-height: 2.1; position: relative; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.2); }\n.quote-premium::before { content: '\"'; font-size: 100px; color: #cda45e; opacity: 0.25; position: absolute; top: -30px; left: -10px; }\n.quote-premium p { color: #e8e8e8; position: relative; z-index: 1; margin: 0; font-size: 17px; }\n.footer { background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1f1f1f 100%); padding: 45px 30px; text-align: center; color: #999999; font-size: 13px; border-top: 4px solid #cda45e; position: relative; }\n.footer::before { content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.footer p { margin: 14px 0; }\n.footer-contact { font-weight: 900; color: #cda45e; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }\n.social-icons { margin: 25px 0 30px 0; }\n.social-icons a { display: inline-block; margin: 0 16px; color: #cda45e; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease; position: relative; }\n.social-icons a::before { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: #cda45e; transform: scaleX(0); transition: transform 0.3s ease; }\n.social-icons a:hover { color: #e8c547; transform: translateY(-3px); }\n.social-icons a:hover::before { transform: scaleX(1); }\n.signature { margin-top: 45px; padding-top: 30px; border-top: 3px solid #cda45e; text-align: left; color: #333333; }\n.signature p { margin: 12px 0; color: #666666; line-height: 1.8; }\n.signature-name { font-weight: 900; color: #1a1a1a; margin: 18px 0 8px 0; font-size: 18px; }\n.signature-title { color: #cda45e; font-size: 14px; font-weight: 800; letter-spacing: 1px; }\n.signature-subtitle { color: #999999; font-size: 13px; margin-top: 4px; }\n.unsubscribe { color: #999999; text-decoration: none; font-size: 12px; margin-top: 25px; padding-top: 25px; border-top: 2px solid #e0e0e0; transition: all 0.3s ease; font-weight: 600; }\n.unsubscribe:hover { color: #cda45e; }\n\n/* Mobile Responsive */\n@media (max-width: 600px) {\n  .container { margin: 10px; }\n  .content { padding: 40px 25px; }\n  .content li::before { width: 28px; height: 28px; line-height: 28px; font-size: 13px; margin-right: 12px; }\n  .content li strong { font-size: 1em; }\n}\n</style>\n</head>\n<body>\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n<tr>\n<td align=\"center\">\n<div class=\"container\">\n<div class=\"header\">\n<div class=\"day-badge\">Day 3</div>\n<img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\">\n</div>\n<div class=\"content\">\n{{ $('Generate Email Day 3').item.json.output }}\n</div>\n<div class=\"signature\">\n<p>Pushing you towards greatness,</p>\n<div class=\"signature-name\">Alice Ngatia</div>\n<div class=\"signature-title\">Founder & Chief Visionary</div>\n<div class=\"signature-subtitle\">Standout4Growth | Transform Your Narrative</div>\n</div>\n<div class=\"footer\">\n<div class=\"footer-contact\">★ Standout4Growth ★</div>\n<p>The Home of Personal Branding Excellence</p>\n<p>📍 Nairobi, Kenya | 📞 +254 115841877</p>\n<div class=\"social-icons\">\n<a href=\"https://standout4growth.com\">Website</a>\n<a href=\"https://linkedin.com/company/standout4growth\">LinkedIn</a>\n<a href=\"https://facebook.com/standout4growth\">Facebook</a>\n<a href=\"https://twitter.com/standout4growth\">Twitter</a>\n<a href=\"https://instagram.com/standout4growth\">Instagram</a>\n</div>\n<a href=\"https://standout4growth.com/unsubscribe\" class=\"unsubscribe\">Unsubscribe from this sequence</a>\n</div>\n</div>\n</td>\n</tr>\n</table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2448,
+        1072
+      ],
+      "id": "73e6c10a-a262-4cda-b340-fa94df9a7be5",
+      "name": "Send Email Day 3",
+      "webhookId": "851729db-fbe1-4db5-93c6-9d88d40f0bf0",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "aad0a0d4-9817-4f32-b9a9-b660cbdcfca0",
+      "name": "Wait 1 Day 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2672,
+        1072
+      ],
+      "webhookId": "943027b2-4810-4fd0-b4de-bcd2b4011ed1"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "id": "={{ $('Create Lead1').item.json.id }}",
+        "options": {}
+      },
+      "id": "f7375c58-7ba5-4efa-8878-8b09c0a1c738",
+      "name": "Check Status Day 4",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        2896,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "status-check-day-4",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Unsubscribed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STOP"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        3120,
+        1072
+      ],
+      "id": "70458465-47eb-4c6e-a921-e33f8fadd072",
+      "name": "Status Switch Day 4"
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}",
+        "subject": "=Day 4: Networking That Actually Works (and Doesn't Feel Slimy)",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Standout4Growth - Day 4</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px 0; }\n.container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(205, 164, 94, 0.3), 0 0 60px rgba(205, 164, 94, 0.15), inset 0 1px 0 rgba(255,255,255,0.2); border: 2px solid rgba(205, 164, 94, 0.3); }\n.header { background: linear-gradient(135deg, #1a1a1a 0%, #222222 30%, #2a2a2a 60%, #1f1f1f 100%); padding: 60px 30px; text-align: center; position: relative; overflow: hidden; }\n.header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(205, 164, 94, 0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header img { max-width: 320px; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n.day-badge { position: absolute; top: 25px; right: 25px; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(205, 164, 94, 0.5); border: 2px solid rgba(255,255,255,0.3); }\n.content { padding: 60px 45px; color: #2c2c2c; line-height: 2; font-size: 16px; background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%); position: relative; }\n.content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #cda45e, transparent); }\n.content h1 { color: #cda45e; font-size: 36px; margin-bottom: 25px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 3px 8px rgba(205, 164, 94, 0.2); line-height: 1.2; }\n.content h2 { color: #1a1a1a; font-size: 26px; margin: 40px 0 22px 0; font-weight: 800; letter-spacing: -0.5px; border-bottom: 3px solid #cda45e; padding-bottom: 15px; }\n.content h3 { color: #cda45e; font-size: 20px; margin: 32px 0 16px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }\n.content p { margin-bottom: 22px; color: #444444; line-height: 2; }\n\n/* List Styles - Fixed for Email Clients */\n.content ol, .content ul { margin: 30px 0; padding-left: 0; list-style: none; }\n.content li { margin-bottom: 24px; padding-left: 0; display: block; }\n.content li strong { font-weight: 900 !important; color: #1a1a1a; display: block; margin-bottom: 8px; font-size: 1.05em; }\n.content li::before { content: attr(data-number); display: inline-block; width: 32px; height: 32px; background: #cda45e; color: #1a1a1a; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 16px; flex-shrink: 0; }\n\n.highlight { color: #cda45e; font-weight: 900; font-size: 1.05em; }\n.content a { color: #cda45e; text-decoration: none; font-weight: 800; position: relative; border-bottom: 3px solid #cda45e; transition: all 0.3s ease; }\n.content a:hover { color: #e8c547; border-bottom-color: #e8c547; }\n.cta-button { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 50%, #cda45e 100%); color: #1a1a1a !important; padding: 20px 52px; border-radius: 60px; text-align: center; text-decoration: none; font-weight: 900; margin: 32px 0; font-size: 17px; border: 3px solid rgba(205, 164, 94, 0.5); cursor: pointer; box-shadow: 0 12px 40px rgba(205, 164, 94, 0.45), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden; }\n.cta-button::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%); transform: translate(25%, 25%); }\n.cta-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 50px rgba(205, 164, 94, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }\n.premium-highlight { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08) 0%, rgba(205, 164, 94, 0.04) 100%); border: 2px solid #cda45e; border-left: 8px solid #cda45e; padding: 28px; margin: 32px 0; border-radius: 14px; position: relative; overflow: hidden; }\n.premium-highlight::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; }\n.premium-highlight h4 { color: #cda45e; font-weight: 900; margin-bottom: 14px; font-size: 18px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 1px; }\n.premium-highlight p { color: #333333; position: relative; z-index: 1; margin-bottom: 0; }\n.divider-premium { border: none; height: 4px; background: linear-gradient(90deg, transparent, #cda45e 20%, #cda45e 80%, transparent); margin: 40px 0; position: relative; }\n.divider-premium::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: #ffffff; border: 4px solid #cda45e; border-radius: 50%; }\n.quote-premium { background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%); border-left: 8px solid #cda45e; padding: 35px; margin: 40px 0; border-radius: 14px; font-style: italic; color: #ffffff; line-height: 2.1; position: relative; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.2); }\n.quote-premium::before { content: '\"'; font-size: 100px; color: #cda45e; opacity: 0.25; position: absolute; top: -30px; left: -10px; }\n.quote-premium p { color: #e8e8e8; position: relative; z-index: 1; margin: 0; font-size: 17px; }\n.footer { background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1f1f1f 100%); padding: 45px 30px; text-align: center; color: #999999; font-size: 13px; border-top: 4px solid #cda45e; position: relative; }\n.footer::before { content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.footer p { margin: 14px 0; }\n.footer-contact { font-weight: 900; color: #cda45e; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }\n.social-icons { margin: 25px 0 30px 0; }\n.social-icons a { display: inline-block; margin: 0 16px; color: #cda45e; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease; position: relative; }\n.social-icons a::before { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: #cda45e; transform: scaleX(0); transition: transform 0.3s ease; }\n.social-icons a:hover { color: #e8c547; transform: translateY(-3px); }\n.social-icons a:hover::before { transform: scaleX(1); }\n.signature { margin-top: 45px; padding-top: 30px; border-top: 3px solid #cda45e; text-align: left; color: #333333; }\n.signature p { margin: 12px 0; color: #666666; line-height: 1.8; }\n.signature-name { font-weight: 900; color: #1a1a1a; margin: 18px 0 8px 0; font-size: 18px; }\n.signature-title { color: #cda45e; font-size: 14px; font-weight: 800; letter-spacing: 1px; }\n.signature-subtitle { color: #999999; font-size: 13px; margin-top: 4px; }\n.unsubscribe { color: #999999; text-decoration: none; font-size: 12px; margin-top: 25px; padding-top: 25px; border-top: 2px solid #e0e0e0; transition: all 0.3s ease; font-weight: 600; }\n.unsubscribe:hover { color: #cda45e; }\n\n/* Mobile Responsive */\n@media (max-width: 600px) {\n  .container { margin: 10px; }\n  .content { padding: 40px 25px; }\n  .content li::before { width: 28px; height: 28px; line-height: 28px; font-size: 13px; margin-right: 12px; }\n  .content li strong { font-size: 1em; }\n}\n</style>\n</head>\n<body>\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n<tr>\n<td align=\"center\">\n<div class=\"container\">\n<div class=\"header\">\n<div class=\"day-badge\">Day 4</div>\n<img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\">\n</div>\n<div class=\"content\">\n{{ $('Generate Email Day 4').item.json.output }}\n</div>\n<div class=\"signature\">\n<p>Making moves together,</p>\n<div class=\"signature-name\">Alice Ngatia</div>\n<div class=\"signature-title\">Founder & Chief Visionary</div>\n<div class=\"signature-subtitle\">Standout4Growth | Transform Your Narrative</div>\n</div>\n<div class=\"footer\">\n<div class=\"footer-contact\">★ Standout4Growth ★</div>\n<p>The Home of Personal Branding Excellence</p>\n<p>📍 Nairobi, Kenya | 📞 +254 115841877</p>\n<div class=\"social-icons\">\n<a href=\"https://standout4growth.com\">Website</a>\n<a href=\"https://linkedin.com/company/standout4growth\">LinkedIn</a>\n<a href=\"https://facebook.com/standout4growth\">Facebook</a>\n<a href=\"https://twitter.com/standout4growth\">Twitter</a>\n<a href=\"https://instagram.com/standout4growth\">Instagram</a>\n</div>\n<a href=\"https://standout4growth.com/unsubscribe?email={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}\" class=\"unsubscribe\">Unsubscribe from this sequence</a>\n</div>\n</div>\n</td>\n</tr>\n</table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        3696,
+        1072
+      ],
+      "id": "b814db67-0dbc-46c4-a81c-0c8e7730c356",
+      "name": "Send Email Day 4",
+      "webhookId": "943e047b-463e-4a07-9f3e-3d73ba5f9d62",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "4c68cd3e-bc6e-40af-bf47-082beeca0364",
+      "name": "Wait 1 Day 4",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3920,
+        1072
+      ],
+      "webhookId": "1aba9d65-21eb-4e28-ab73-0827339639ac"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "id": "={{ $('Create Lead1').item.json.id }}",
+        "options": {}
+      },
+      "id": "2fd7c4d9-e395-4930-b014-e1d7fb43feb4",
+      "name": "Check Status Day 5",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        4144,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "status-check-day-5",
+                    "leftValue": "={{ $json.Status }}",
+                    "rightValue": "Unsubscribed",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "STOP"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        4368,
+        1072
+      ],
+      "id": "e5312ba6-7857-485b-b38b-09d3a34eb635",
+      "name": "Status Switch Day 5"
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}",
+        "subject": "=Day 5: Your Next Step: Let's Put Your Brand Into Action 🚀",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Standout4Growth - Day 5 Finale</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px 0; }\n.container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(205, 164, 94, 0.3), 0 0 60px rgba(205, 164, 94, 0.15), inset 0 1px 0 rgba(255,255,255,0.2); border: 2px solid rgba(205, 164, 94, 0.3); }\n.header { background: linear-gradient(135deg, #1a1a1a 0%, #222222 30%, #2a2a2a 60%, #1f1f1f 100%); padding: 60px 30px; text-align: center; position: relative; overflow: hidden; }\n.header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(205, 164, 94, 0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header img { max-width: 320px; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n.day-badge { position: absolute; top: 25px; right: 25px; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(205, 164, 94, 0.5); border: 2px solid rgba(255,255,255,0.3); }\n.content { padding: 60px 45px; color: #2c2c2c; line-height: 2; font-size: 16px; background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%); position: relative; }\n.content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #cda45e, transparent); }\n.content h1 { color: #cda45e; font-size: 36px; margin-bottom: 25px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 3px 8px rgba(205, 164, 94, 0.2); line-height: 1.2; }\n.content h2 { color: #1a1a1a; font-size: 26px; margin: 40px 0 22px 0; font-weight: 800; letter-spacing: -0.5px; border-bottom: 3px solid #cda45e; padding-bottom: 15px; }\n.content h3 { color: #cda45e; font-size: 20px; margin: 32px 0 16px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }\n.content p { margin-bottom: 22px; color: #444444; line-height: 2; }\n\n/* List Styles - Fixed for Email Clients */\n.content ol, .content ul { margin: 30px 0; padding-left: 0; list-style: none; }\n.content li { margin-bottom: 24px; padding-left: 0; display: block; }\n.content li strong { font-weight: 900 !important; color: #1a1a1a; display: block; margin-bottom: 8px; font-size: 1.05em; }\n.content li::before { content: attr(data-number); display: inline-block; width: 32px; height: 32px; background: #cda45e; color: #1a1a1a; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 16px; flex-shrink: 0; }\n\n.highlight { color: #cda45e; font-weight: 900; font-size: 1.05em; }\n.content a { color: #cda45e; text-decoration: none; font-weight: 800; position: relative; border-bottom: 3px solid #cda45e; transition: all 0.3s ease; }\n.content a:hover { color: #e8c547; border-bottom-color: #e8c547; }\n.cta-button { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 50%, #cda45e 100%); color: #1a1a1a !important; padding: 20px 52px; border-radius: 60px; text-align: center; text-decoration: none; font-weight: 900; margin: 32px 0; font-size: 17px; border: 3px solid rgba(205, 164, 94, 0.5); cursor: pointer; box-shadow: 0 12px 40px rgba(205, 164, 94, 0.45), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden; }\n.cta-button::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%); transform: translate(25%, 25%); }\n.cta-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 50px rgba(205, 164, 94, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }\n.premium-highlight { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08) 0%, rgba(205, 164, 94, 0.04) 100%); border: 2px solid #cda45e; border-left: 8px solid #cda45e; padding: 28px; margin: 32px 0; border-radius: 14px; position: relative; overflow: hidden; }\n.premium-highlight::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; }\n.premium-highlight h4 { color: #cda45e; font-weight: 900; margin-bottom: 14px; font-size: 18px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 1px; }\n.premium-highlight p { color: #333333; position: relative; z-index: 1; margin-bottom: 0; }\n.achievement-badge { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 12px 24px; border-radius: 50px; font-weight: 800; font-size: 14px; margin: 8px 8px 8px 0; box-shadow: 0 4px 15px rgba(205, 164, 94, 0.4); }\n.divider-premium { border: none; height: 4px; background: linear-gradient(90deg, transparent, #cda45e 20%, #cda45e 80%, transparent); margin: 40px 0; position: relative; }\n.divider-premium::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: #ffffff; border: 4px solid #cda45e; border-radius: 50%; }\n.quote-premium { background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%); border-left: 8px solid #cda45e; padding: 35px; margin: 40px 0; border-radius: 14px; font-style: italic; color: #ffffff; line-height: 2.1; position: relative; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.2); }\n.quote-premium::before { content: '\"'; font-size: 100px; color: #cda45e; opacity: 0.25; position: absolute; top: -30px; left: -10px; }\n.quote-premium p { color: #e8e8e8; position: relative; z-index: 1; margin: 0; font-size: 17px; }\n.footer { background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1f1f1f 100%); padding: 45px 30px; text-align: center; color: #999999; font-size: 13px; border-top: 4px solid #cda45e; position: relative; }\n.footer::before { content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.footer p { margin: 14px 0; }\n.footer-contact { font-weight: 900; color: #cda45e; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }\n.social-icons { margin: 25px 0 30px 0; }\n.social-icons a { display: inline-block; margin: 0 16px; color: #cda45e; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease; position: relative; }\n.social-icons a::before { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: #cda45e; transform: scaleX(0); transition: transform 0.3s ease; }\n.social-icons a:hover { color: #e8c547; transform: translateY(-3px); }\n.social-icons a:hover::before { transform: scaleX(1); }\n.signature { margin-top: 45px; padding-top: 30px; border-top: 3px solid #cda45e; text-align: left; color: #333333; }\n.signature p { margin: 12px 0; color: #666666; line-height: 1.8; }\n.signature-name { font-weight: 900; color: #1a1a1a; margin: 18px 0 8px 0; font-size: 18px; }\n.signature-title { color: #cda45e; font-size: 14px; font-weight: 800; letter-spacing: 1px; }\n.signature-subtitle { color: #999999; font-size: 13px; margin-top: 4px; }\n.unsubscribe { color: #999999; text-decoration: none; font-size: 12px; margin-top: 25px; padding-top: 25px; border-top: 2px solid #e0e0e0; transition: all 0.3s ease; font-weight: 600; }\n.unsubscribe:hover { color: #cda45e; }\n.celebration-text { font-size: 28px; text-align: center; margin: 20px 0; letter-spacing: 8px; }\n\n/* Mobile Responsive */\n@media (max-width: 600px) {\n  .container { margin: 10px; }\n  .content { padding: 40px 25px; }\n  .content li::before { width: 28px; height: 28px; line-height: 28px; font-size: 13px; margin-right: 12px; }\n  .content li strong { font-size: 1em; }\n  .celebration-text { font-size: 20px; letter-spacing: 4px; }\n}\n</style>\n</head>\n<body>\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n<tr>\n<td align=\"center\">\n<div class=\"container\">\n<div class=\"header\">\n<div class=\"day-badge\">✦ Day 5 ✦ Final Day</div>\n<img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\">\n</div>\n<div class=\"content\">\n{{ $('Generate Email Day 5').item.json.output }}\n</div>\n<div class=\"signature\">\n<p>Your partner in excellence,</p>\n<div class=\"signature-name\">Alice Ngatia</div>\n<div class=\"signature-title\">Founder & Chief Visionary</div>\n<div class=\"signature-subtitle\">Standout4Growth | Transform Your Narrative</div>\n</div>\n<div class=\"celebration-text\">✦ ✦ ✦</div>\n<div class=\"footer\">\n<div class=\"footer-contact\">★ Standout4Growth ★</div>\n<p>The Home of Personal Branding Excellence</p>\n<p>📍 Nairobi, Kenya | 📞 +254 115841877</p>\n<div class=\"social-icons\">\n<a href=\"https://standout4growth.com\">Website</a>\n<a href=\"https://linkedin.com/company/standout4growth\">LinkedIn</a>\n<a href=\"https://facebook.com/standout4growth\">Facebook</a>\n<a href=\"https://twitter.com/standout4growth\">Twitter</a>\n<a href=\"https://instagram.com/standout4growth\">Instagram</a>\n</div>\n<a href=\"https://standout4growth.com/unsubscribe?email={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}\" class=\"unsubscribe\">Unsubscribe from this sequence</a>\n</div>\n</div>\n</td>\n</tr>\n</table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        4944,
+        1072
+      ],
+      "id": "167c4623-5eca-426b-ab7c-1980d234772e",
+      "name": "Send Email Day 5",
+      "webhookId": "694581d9-7801-45ac-a080-cf552b8a90e3",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appixNHCIseWKP5rt",
+          "mode": "list",
+          "cachedResultName": "Lead-Gen AI Agent",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblbE6YuN1HqPY4rO",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appixNHCIseWKP5rt/tblbE6YuN1HqPY4rO"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Create Lead1').item.json.id }}",
+            "Status": "Email Sequence Completed",
+            "Email": "={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}",
+            "Name": "={{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}",
+            "Created": "={{ $('Create Lead1').item.json.createdTime }}",
+            "Source": "Website Subscription"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Created",
+              "displayName": "Created",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Contacted",
+                  "value": "Contacted"
+                },
+                {
+                  "name": "Unsubscribed",
+                  "value": "Unsubscribed"
+                },
+                {
+                  "name": "Email Sequence Completed",
+                  "value": "Email Sequence Completed"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "id": "bbd9ce64-722c-40f0-b6ed-52aa78467c59",
+      "name": "Final Airtable Update",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [
+        5168,
+        1072
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "GDsF1YozoNskJMYd",
+          "name": "Lead Sub AI Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        4672,
+        1296
+      ],
+      "id": "7174d615-bca3-4b35-8194-597566a0d243",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        3424,
+        1296
+      ],
+      "id": "245b439d-1b77-4790-9e36-467dc2a79de8",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alice Ngatia, founder of Standout4Growth. This is Day 4 of your email sequence.\n\n**Lead Name:** {{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}\n**Day 4 Focus:** Strategic Networking\n\n**Your Task:**\nWrite the email content about authentic, strategic networking. The output must be simple HTML (using only <h2>, <p>, <ol>, <li>, <strong> tags). Do NOT include <html>, <body>, or <style> tags.\n\n**Instructions:**\n1. Start with a warm greeting using their name\n2. Reference Day 3's content on thought leadership\n3. Provide 3 actionable tips for meaningful engagement (use <ol> and <li> tags)\n4. Explain how content can be a conversation starter\n5. Close with: <p>Talk soon,<br><strong>Alice Ngatia</strong><br>Founder, Standout4Growth</p>\n\n**Output only the HTML content for the email body.**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3344,
+        1072
+      ],
+      "id": "690652c8-947b-4af9-a1e1-4a4b114359e3",
+      "name": "Generate Email Day 4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alice Ngatia, founder of Standout4Growth. This is the final day of your email sequence.\n\n**Lead Name:** {{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}\n**Day 5 Focus:** Taking Action & Next Steps\n\n**Your Task:**\nWrite an encouraging and action-oriented email. The output must be simple HTML (using only <h2>, <p>, <strong>, <a> tags). Do NOT include <html>, <body>, or <style> tags.\n\n**Instructions:**\n1. Start with a warm greeting using their name\n2. Reference Day 4's focus on networking\n3. Recap the journey from the past 4 days\n4. Encourage them to take action on their brand growth journey\n5. End with a strong call-to-action: <p style=\"text-align: center;\"><a href=\"https://cal.com/alicengatia/30min\" class=\"cta-button\">Book Your FREE Brand Assessment Now</a></p>\n6. Close with: <p>Talk soon,<br><strong>Alice Ngatia</strong><br>Founder, Standout4Growth</p>\n\n**Output only the HTML content for the email body.**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        4592,
+        1072
+      ],
+      "id": "12698943-6b72-4745-914e-b869c97314a1",
+      "name": "Generate Email Day 5"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        1296
+      ],
+      "id": "3cf8634e-f76e-4399-a6ec-3df2ac920cb1",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        928,
+        1296
+      ],
+      "id": "7aa358ef-89c6-4dfb-9c1e-ff5777b23c1b",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        1184
+      ],
+      "id": "af833afd-3028-419a-a441-3e4b2402f50b",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alice Ngatia, founder of Standout4Growth, Africa's leading Personal Branding Agency. Your voice is expert, empowering, and warm.\n\nA new professional just subscribed to your newsletter.\n\n**Subscriber Name:** {{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}\n\n**Your Task:**\nWrite the welcome email content. The output must be simple HTML (using only <h2>, <p>, <strong> tags). Do NOT include <html>, <body>, or <style> tags.\n\n**Instructions:**\n1. Start with a warm and personal greeting using the subscriber's name\n2. Introduce yourself and Standout4Growth\n3. Explain the value they'll receive over the next 5 days\n4. Set excitement for tomorrow's email about building their brand foundation\n5. End with a warm closing: <p>Talk soon,<br><strong>Alice Ngatia</strong><br>Founder, Standout4Growth</p>\n\n**Output only the HTML content for the email body.**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -624,
+        960
+      ],
+      "id": "9c5bcb15-d8f3-4996-82ec-4a56e1e34d31",
+      "name": "Generate Email1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alice Ngatia, founder of Standout4Growth. This is Day 2 of your email sequence.\n\n**Lead Name:** {{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}\n**Day 2 Focus:** Building Personal Brand Foundation\n\n**Your Task:**\nWrite the email content focusing on the importance of defining a unique value proposition. The output must be simple HTML (using only <h2>, <p>, <ol>, <li>, <strong> tags). Do NOT include <html>, <body>, or <style> tags.\n\n**Instructions:**\n1. Start with a warm greeting using their name\n2. Reference yesterday's welcome message\n3. Provide 3 actionable steps to identify their personal brand pillars (use <ol> and <li> tags)\n4. End with a soft call-to-action: <p>Ready to get clear on your brand? You can book a free brand assessment with me <a href=\"https://cal.com/alicengatia/30min\" class=\"cta-button\">here</a>.</p>\n5. Close with: <p>Talk soon,<br><strong>Alice Ngatia</strong><br>Founder, Standout4Growth</p>\n\n**Output only the HTML content for the email body.**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        848,
+        1072
+      ],
+      "id": "bf84f74c-897f-44f4-a251-136a0a5e4751",
+      "name": "Generate Email Day 2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are Alice Ngatia, founder of Standout4Growth. This is Day 3 of your email sequence.\n\n**Lead Name:** {{ $('Validate & Clean1').item.json.body['fields[name][value]'] }}\n**Day 3 Focus:** Content Strategy & Thought Leadership\n\n**Your Task:**\nWrite the email content focusing on building thought leadership through strategic content. The output must be simple HTML (using only <h2>, <p>, <ol>, <li>, <strong> tags). Do NOT include <html>, <body>, or <style> tags.\n\n**Instructions:**\n1. Start with a warm greeting using their name\n2. Reference yesterday's brand foundation message\n3. Provide 3 actionable steps for creating and sharing impactful content (use <ol> and <li> tags)\n4. End with a soft CTA and warm closing\n5. Close with: <p>Talk soon,<br><strong>Alice Ngatia</strong><br>Founder, Standout4Growth</p>\n\n**Output only the HTML content for the email body.**",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2096,
+        1072
+      ],
+      "id": "f61819aa-61df-4931-a8d3-1a38b191d4a2",
+      "name": "Generate Email Day 3"
+    },
+    {
+      "parameters": {
+        "fromEmail": "Standout4Growth <mailing@standout4growth.com>",
+        "toEmail": "={{ $('Lead Capture Webform1').item.json.body['fields[email][raw_value]'] }}",
+        "subject": "=Day 1 (Welcome): Welcome to Standout4Growth, {{ $('Lead Capture Webform1').item.json.body['fields[name][value]'] }}!",
+        "html": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Standout4Growth - Welcome</title>\n<style>\n* { margin: 0; padding: 0; box-sizing: border-box; }\nbody { background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 30px 0; }\n.container { max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(205, 164, 94, 0.3), 0 0 60px rgba(205, 164, 94, 0.15), inset 0 1px 0 rgba(255,255,255,0.2); border: 2px solid rgba(205, 164, 94, 0.3); }\n.header { background: linear-gradient(135deg, #1a1a1a 0%, #222222 30%, #2a2a2a 60%, #1f1f1f 100%); padding: 60px 30px; text-align: center; position: relative; overflow: hidden; }\n.header::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(205, 164, 94, 0.2) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 350px; height: 350px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; filter: blur(40px); }\n.header img { max-width: 320px; height: auto; position: relative; z-index: 2; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4)); }\n.day-badge { position: absolute; top: 25px; right: 25px; background: linear-gradient(135deg, #cda45e 0%, #e8c547 100%); color: #1a1a1a; padding: 10px 20px; border-radius: 50px; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; box-shadow: 0 6px 20px rgba(205, 164, 94, 0.5); border: 2px solid rgba(255,255,255,0.3); }\n.content { padding: 60px 45px; color: #2c2c2c; line-height: 2; font-size: 16px; background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%); position: relative; }\n.content::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #cda45e, transparent); }\n.content h1 { color: #cda45e; font-size: 36px; margin-bottom: 25px; font-weight: 900; letter-spacing: -1.5px; text-shadow: 0 3px 8px rgba(205, 164, 94, 0.2); line-height: 1.2; }\n.content h2 { color: #1a1a1a; font-size: 26px; margin: 40px 0 22px 0; font-weight: 800; letter-spacing: -0.5px; border-bottom: 3px solid #cda45e; padding-bottom: 15px; }\n.content h3 { color: #cda45e; font-size: 20px; margin: 32px 0 16px 0; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }\n.content p { margin-bottom: 22px; color: #444444; line-height: 2; }\n\n/* List Styles - Fixed for Email Clients */\n.content ol, .content ul { margin: 30px 0; padding-left: 0; list-style: none; }\n.content li { margin-bottom: 24px; padding-left: 0; display: block; }\n.content li strong { font-weight: 900 !important; color: #1a1a1a; display: block; margin-bottom: 8px; font-size: 1.05em; }\n.content li::before { content: attr(data-number); display: inline-block; width: 32px; height: 32px; background: #cda45e; color: #1a1a1a; border-radius: 50%; text-align: center; line-height: 32px; font-weight: 900; margin-right: 16px; flex-shrink: 0; }\n\n.highlight { color: #cda45e; font-weight: 900; font-size: 1.05em; }\n.content a { color: #cda45e; text-decoration: none; font-weight: 800; position: relative; border-bottom: 3px solid #cda45e; transition: all 0.3s ease; }\n.content a:hover { color: #e8c547; border-bottom-color: #e8c547; }\n.cta-button { display: inline-block; background: linear-gradient(135deg, #cda45e 0%, #e8c547 50%, #cda45e 100%); color: #1a1a1a !important; padding: 20px 52px; border-radius: 60px; text-align: center; text-decoration: none; font-weight: 900; margin: 32px 0; font-size: 17px; border: 3px solid rgba(205, 164, 94, 0.5); cursor: pointer; box-shadow: 0 12px 40px rgba(205, 164, 94, 0.45), inset 0 1px 0 rgba(255,255,255,0.4); transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1.5px; position: relative; overflow: hidden; }\n.cta-button::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%); transform: translate(25%, 25%); }\n.cta-button:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 16px 50px rgba(205, 164, 94, 0.6), inset 0 1px 0 rgba(255,255,255,0.5); }\n.premium-highlight { background: linear-gradient(135deg, rgba(205, 164, 94, 0.08) 0%, rgba(205, 164, 94, 0.04) 100%); border: 2px solid #cda45e; border-left: 8px solid #cda45e; padding: 28px; margin: 32px 0; border-radius: 14px; position: relative; overflow: hidden; }\n.premium-highlight::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200px; height: 200px; background: radial-gradient(circle, rgba(205, 164, 94, 0.15) 0%, transparent 70%); border-radius: 50%; }\n.premium-highlight h4 { color: #cda45e; font-weight: 900; margin-bottom: 14px; font-size: 18px; position: relative; z-index: 1; text-transform: uppercase; letter-spacing: 1px; }\n.premium-highlight p { color: #333333; position: relative; z-index: 1; margin-bottom: 0; }\n.divider-premium { border: none; height: 4px; background: linear-gradient(90deg, transparent, #cda45e 20%, #cda45e 80%, transparent); margin: 40px 0; position: relative; }\n.divider-premium::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; background: #ffffff; border: 4px solid #cda45e; border-radius: 50%; }\n.quote-premium { background: linear-gradient(135deg, #1a1a1a 0%, #222222 100%); border-left: 8px solid #cda45e; padding: 35px; margin: 40px 0; border-radius: 14px; font-style: italic; color: #ffffff; line-height: 2.1; position: relative; box-shadow: 0 8px 25px rgba(205, 164, 94, 0.2); }\n.quote-premium::before { content: '\"'; font-size: 100px; color: #cda45e; opacity: 0.25; position: absolute; top: -30px; left: -10px; }\n.quote-premium p { color: #e8e8e8; position: relative; z-index: 1; margin: 0; font-size: 17px; }\n.footer { background: linear-gradient(135deg, #1a1a1a 0%, #222222 50%, #1f1f1f 100%); padding: 45px 30px; text-align: center; color: #999999; font-size: 13px; border-top: 4px solid #cda45e; position: relative; }\n.footer::before { content: ''; position: absolute; top: -4px; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, transparent, #cda45e, transparent); }\n.footer p { margin: 14px 0; }\n.footer-contact { font-weight: 900; color: #cda45e; margin-bottom: 14px; font-size: 15px; letter-spacing: 1px; }\n.social-icons { margin: 25px 0 30px 0; }\n.social-icons a { display: inline-block; margin: 0 16px; color: #cda45e; text-decoration: none; font-weight: 900; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; transition: all 0.3s ease; position: relative; }\n.social-icons a::before { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 3px; background: #cda45e; transform: scaleX(0); transition: transform 0.3s ease; }\n.social-icons a:hover { color: #e8c547; transform: translateY(-3px); }\n.social-icons a:hover::before { transform: scaleX(1); }\n.signature { margin-top: 45px; padding-top: 30px; border-top: 3px solid #cda45e; text-align: left; color: #333333; }\n.signature p { margin: 12px 0; color: #666666; line-height: 1.8; }\n.signature-name { font-weight: 900; color: #1a1a1a; margin: 18px 0 8px 0; font-size: 18px; }\n.signature-title { color: #cda45e; font-size: 14px; font-weight: 800; letter-spacing: 1px; }\n.signature-subtitle { color: #999999; font-size: 13px; margin-top: 4px; }\n.unsubscribe { color: #999999; text-decoration: none; font-size: 12px; margin-top: 25px; padding-top: 25px; border-top: 2px solid #e0e0e0; transition: all 0.3s ease; font-weight: 600; }\n.unsubscribe:hover { color: #cda45e; }\n\n/* Mobile Responsive */\n@media (max-width: 600px) {\n  .container { margin: 10px; }\n  .content { padding: 40px 25px; }\n  .content li::before { width: 28px; height: 28px; line-height: 28px; font-size: 13px; margin-right: 12px; }\n  .content li strong { font-size: 1em; }\n}\n</style>\n</head>\n<body>\n<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\n<tr>\n<td align=\"center\">\n<div class=\"container\">\n<div class=\"header\">\n<div class=\"day-badge\">Welcome</div>\n<img src=\"https://standout4growth.com/wp-content/uploads/2024/01/Asset-1-2-1536x559.png\" alt=\"Standout4Growth Logo\">\n</div>\n<div class=\"content\">\n{{ $('Generate Email1').item.json.output }}\n</div>\n<div class=\"signature\">\n<p>Welcome to the family,</p>\n<div class=\"signature-name\">Alice Ngatia</div>\n<div class=\"signature-title\">Founder & Chief Visionary</div>\n<div class=\"signature-subtitle\">Standout4Growth | Transform Your Narrative</div>\n</div>\n<div class=\"footer\">\n<div class=\"footer-contact\">★ Standout4Growth ★</div>\n<p>The Home of Personal Branding Excellence</p>\n<p>📍 Nairobi, Kenya | 📞 +254 115841877</p>\n<div class=\"social-icons\">\n<a href=\"https://standout4growth.com\">Website</a>\n<a href=\"https://linkedin.com/company/standout4growth\">LinkedIn</a>\n<a href=\"https://facebook.com/standout4growth\">Facebook</a>\n<a href=\"https://twitter.com/standout4growth\">Twitter</a>\n<a href=\"https://instagram.com/standout4growth\">Instagram</a>\n</div>\n<a href=\"https://standout4growth.com/unsubscribe?email={{ $('Validate & Clean1').item.json.body[\"fields[email][value]\"] }}\" class=\"unsubscribe\">Unsubscribe from this sequence</a>\n</div>\n</div>\n</td>\n</tr>\n</table>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        1072
+      ],
+      "id": "d0c1de7f-dfd5-41b2-9eb3-f82be73b2d9e",
+      "name": "Send Welcome Email (Day 1)",
+      "webhookId": "d152fad3-c6b4-44d3-9a89-57fe9674a614",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Lead Capture Webform1": [
+      {
+        "json": {
+          "headers": {
+            "host": "standout4growth.app.n8n.cloud",
+            "user-agent": "WordPress/6.8.3; https://standout4growth.com",
+            "content-length": "1134",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "198.23.59.54",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "9970e24a4199e81a-ORD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/x-www-form-urlencoded",
+            "x-forwarded-for": "198.23.59.54, 172.71.255.43",
+            "x-forwarded-host": "standout4growth.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-77-7df8c744bc-s67wc",
+            "x-is-trusted": "yes",
+            "x-real-ip": "198.23.59.54"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "form[id]": "b9ab4f8",
+            "form[name]": "New Form",
+            "fields[name][id]": "name",
+            "fields[name][type]": "text",
+            "fields[name][title]": "Name",
+            "fields[name][value]": "Alice Ng",
+            "fields[name][raw_value]": "Alice Ng",
+            "fields[name][required]": "0",
+            "fields[email][id]": "email",
+            "fields[email][type]": "email",
+            "fields[email][title]": "Email",
+            "fields[email][value]": "alice.ngatia@gmail.com",
+            "fields[email][raw_value]": "alice.ngatia@gmail.com",
+            "fields[email][required]": "1",
+            "meta[date][title]": "Date",
+            "meta[date][value]": "October 31, 2025",
+            "meta[time][title]": "Time",
+            "meta[time][value]": "5:52 am",
+            "meta[page_url][title]": "Page URL",
+            "meta[page_url][value]": "https://standout4growth.com/",
+            "meta[user_agent][title]": "User Agent",
+            "meta[user_agent][value]": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36 Edg/141.0.0.0",
+            "meta[remote_ip][title]": "Remote IP",
+            "meta[remote_ip][value]": "41.90.172.147",
+            "meta[credit][title]": "Powered by",
+            "meta[credit][value]": "Elementor"
+          },
+          "webhookUrl": "https://standout4growth.app.n8n.cloud/webhook/lead-capture",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Validate & Clean1": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate1": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lead1": {
+      "main": [
+        [
+          {
+            "node": "Research Insights1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Insights1": {
+      "main": [
+        [
+          {
+            "node": "Generate Email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Status1": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Day": {
+      "main": [
+        [
+          {
+            "node": "Check Status Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Day 2": {
+      "main": [
+        [
+          {
+            "node": "Status Switch Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Day 2": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Day 2": {
+      "main": [
+        [
+          {
+            "node": "Check Status Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Day 3": {
+      "main": [
+        [
+          {
+            "node": "Status Switch Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Day 3": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Day 3": {
+      "main": [
+        [
+          {
+            "node": "Check Status Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Day 4": {
+      "main": [
+        [
+          {
+            "node": "Status Switch Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Day 4": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 1 Day 4": {
+      "main": [
+        [
+          {
+            "node": "Check Status Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Day 5": {
+      "main": [
+        [
+          {
+            "node": "Status Switch Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Day 5": {
+      "main": [
+        [
+          {
+            "node": "Final Airtable Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Capture Webform1": {
+      "main": [
+        [
+          {
+            "node": "Validate & Clean1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Switch Day 3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Email Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Switch Day 2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Email Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Switch Day 4": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Email Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Status Switch Day 5": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate Email Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email Day 5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email Day 4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Day 5": {
+      "main": [
+        [
+          {
+            "node": "Send Email Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email Day 3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email Day 2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Day 2": {
+      "main": [
+        [
+          {
+            "node": "Send Email Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Day 4": {
+      "main": [
+        [
+          {
+            "node": "Send Email Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email Day 3": {
+      "main": [
+        [
+          {
+            "node": "Send Email Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email (Day 1)": {
+      "main": [
+        [
+          {
+            "node": "Update Status1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email1": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email (Day 1)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Create Lead1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Webhook Reply1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "aef3a389-ab17-48b6-b197-73354661e296",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37b22ae5b73a9dce0788d7d4a3f919a87e631d67723f1ebc928b1ad2847f83e6"
+  },
+  "id": "bCAJhYqR5lylD0xN",
+  "tags": []
+}

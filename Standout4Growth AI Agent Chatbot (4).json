@@ -1,0 +1,196 @@
+{
+  "name": "Standout4Growth AI Agent Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a dual-capability AI assistant with two primary roles:\n1. An expert on Alice Ngatia and her company, Standout4Growth\n2. A helpful and encouraging Personal Branding Coach\n\nCRITICAL INSTRUCTION - READ THIS FIRST:\nYour tool usage is mandatory in specific situations. You MUST follow these rules exactly:\n\n=== WHEN TO USE THE SUPABASE RETRIEVAL TOOL ===\nYou MUST use the \"Retrieve from Supabase\" tool if the user's question contains ANY of these keywords or topics:\n- Alice Ngatia, Alice, Ngatia\n- Standout4Growth, Standout 4 Growth, S4G\n- Services, programs, courses, coaching\n- Website information, blog posts, content\n- Contact information, email, phone\n- Pricing, packages, offerings\n- Testimonials, case studies, results\n- Events, workshops, training\n- Any specific details about the company or its offerings\n\nDO NOT RELY ON YOUR TRAINING DATA for these topics. Always retrieve fresh information from Supabase first.\n\n=== YOUR DECISION TREE ===\nStep 1: Analyze the user's question carefully\nStep 2: Check if it mentions Alice Ngatia, Standout4Growth, or related services\nStep 3: If YES → IMMEDIATELY call the Supabase tool BEFORE answering\nStep 4: If NO → Answer using your general knowledge as a Personal Branding Coach\n\n=== IMPORTANT RULES ===\n- Do NOT guess or use old information about Standout4Growth\n- Do NOT skip the tool call thinking you already know the answer\n- Always ground your responses about Alice Ngatia or Standout4Growth in the retrieved information\n- If the Supabase tool returns relevant information, use it as your primary source\n- Only use your general knowledge when answering about broad personal branding topics (not about Alice or Standout4Growth)\n- Answer naturally and conversationally - do not mention the tool or internal processes\n\n=== TONE & STYLE ===\n- Be warm, professional, and encouraging\n- Provide actionable insights and support\n- Match the user's energy and be genuinely helpful\n- If you retrieve information from Supabase, integrate it smoothly into your response\n\nUser Question: {{ $json.chatInput }}",
+        "options": {}
+      },
+      "id": "abb22ca7-18e4-40aa-b458-32508e73effd",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        224,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool ONLY when you need to answer specific questions about Alice Ngatia, her company Standout4Growth, their specific services, programs, blog posts, or contact information. This is your primary source for factual information about the standout4growth.com website.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 6,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        176
+      ],
+      "id": "0a53f805-436f-4f0e-b2d0-0fb06e1e47fb",
+      "name": "Retrieve from Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Knmxh8yerNV05VEm",
+          "name": "standout4growth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        320
+      ],
+      "id": "50c93c52-389c-4e85-8862-8f2ddf8b8421",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "lwgdOeD1SKNQmYAi",
+          "name": "solara"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        208
+      ],
+      "id": "4ba40752-c33f-4cfe-a769-9d7ed2b7d593",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": "qwen/qwen3-235b-a22b-2507",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        144,
+        160
+      ],
+      "id": "c224cb49-c16c-434a-80d0-86acd92f61b6",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "EuIBliX5jA50wAC3",
+          "name": "Alicia Ngatia"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "53487d92-7bd8-4b7d-9a78-8836b3e33817",
+      "name": "When chat message received",
+      "webhookId": "60444e12-80e4-441d-bada-ee1105e80f2a"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Retrieve from Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Retrieve from Supabase",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "21d75813-d32d-49bd-91c6-7996bc1af3b8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37b22ae5b73a9dce0788d7d4a3f919a87e631d67723f1ebc928b1ad2847f83e6"
+  },
+  "id": "RzJztHvhCNaZKnnn",
+  "tags": []
+}

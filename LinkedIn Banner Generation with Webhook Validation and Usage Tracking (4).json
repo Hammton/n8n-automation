@@ -1,0 +1,618 @@
+{
+  "name": "LinkedIn Banner Generation with Webhook Validation and Usage Tracking",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "banner-generation",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "ebc65695-bebf-4eb8-9760-bdd93d1d7237",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2816,
+        304
+      ],
+      "webhookId": "a98f936f-858e-40bd-be0f-99938d1b8c93"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appzQrE0gbo9VdaIg",
+          "mode": "list",
+          "cachedResultName": "Standout4Growth Usage Tracker",
+          "cachedResultUrl": "https://airtable.com/appzQrE0gbo9VdaIg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblHyCYoZY4F5WHq4",
+          "mode": "list",
+          "cachedResultName": "User Usage Tracker",
+          "cachedResultUrl": "https://airtable.com/appzQrE0gbo9VdaIg/tblHyCYoZY4F5WHq4"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $('Get User from Airtable').first().json.id }}",
+            "Banners Used This Month": "={{ $('Check Usage Limits').first().json.needs_reset ? $('Check Usage Limits').first().json.number_of_variations : $('Get User from Airtable').first().json['Banners Used This Month'] + $('Check Usage Limits').first().json.number_of_variations }}",
+            "Last Banner Generation Date": "={{ $now.toISO() }}",
+            "Current Month": "={{ $('Check Usage Limits').first().json.current_month }}",
+            "Status": "Active"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Banners Used This Month",
+              "displayName": "Banners Used This Month",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Last Banner Generation Date",
+              "displayName": "Last Banner Generation Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Current Month",
+              "displayName": "Current Month",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "61f5cdff-5034-4028-8ac9-085dfb255c33",
+      "name": "Update Banner Usage",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        208
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "5Ja5UkHXSqPvt9wO",
+          "name": "Standout4Growth Usage Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-2",
+              "name": "smtpFromEmail",
+              "value": "mailing@standout4growth.com",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "smtpFromName",
+              "value": "standout4growth",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "imgbbApiKey",
+              "value": "c877c3665f3b78f89d95443a3b1e42cc",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "212cb276-73ef-461e-8adb-2d60ab0f9999",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2592,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appzQrE0gbo9VdaIg",
+          "mode": "list",
+          "cachedResultName": "Standout4Growth Usage Tracker",
+          "cachedResultUrl": "https://airtable.com/appzQrE0gbo9VdaIg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblHyCYoZY4F5WHq4",
+          "mode": "list",
+          "cachedResultName": "User Usage Tracker",
+          "cachedResultUrl": "https://airtable.com/appzQrE0gbo9VdaIg/tblHyCYoZY4F5WHq4"
+        },
+        "filterByFormula": "={{ '{Email} = \"' + $json.body.email + '\"' }}",
+        "options": {}
+      },
+      "id": "2efe4537-b266-472c-a1b8-3d2f331b9326",
+      "name": "Get User from Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        -2368,
+        304
+      ],
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "5Ja5UkHXSqPvt9wO",
+          "name": "Standout4Growth Usage Tracker"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate banner data from webhook\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const data = item.json;\n  const errors = [];\n  \n  // Required fields validation\n  const requiredFields = ['fullName', 'email', 'professionalTitle', 'industry', 'bannerStyle', 'keyMessage'];\n  \n  for (const field of requiredFields) {\n    if (!data[field] || data[field].toString().trim() === '') {\n      errors.push(`Missing required field: ${field}`);\n    }\n  }\n  \n  // Email format validation\n  if (data.email) {\n    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n    if (!emailRegex.test(data.email)) {\n      errors.push('Invalid email format');\n    }\n  }\n  \n  // Hex color code validation (if color fields are present)\n  const colorFields = ['primaryColor', 'secondaryColor', 'backgroundColor'];\n  const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;\n  \n  for (const colorField of colorFields) {\n    if (data[colorField] && !hexRegex.test(data[colorField])) {\n      errors.push(`Invalid hex color code for ${colorField}`);\n    }\n  }\n  \n  // Build result object\n  const result = {\n    isValid: errors.length === 0,\n    errorMessage: errors.length > 0 ? errors.join('; ') : '',\n    validated_data: {\n      fullName: data.fullName || '',\n      email: data.email || '',\n      professionalTitle: data.professionalTitle || '',\n      industry: data.industry || '',\n      bannerStyle: data.bannerStyle || '',\n      keyMessage: data.keyMessage || '',\n      primaryColor: data.primaryColor || '',\n      secondaryColor: data.secondaryColor || '',\n      backgroundColor: data.backgroundColor || '',\n      additionalInfo: data.additionalInfo || ''\n    }\n  };\n  \n  results.push(result);\n}\n\nreturn results;"
+      },
+      "id": "dbab86cc-ec39-48fe-b6e9-30a6f0c81504",
+      "name": "Validate Banner Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2144,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get user data from Airtable node\nconst userData = $('Get User from Airtable').first().json;\n\n// Get request data from webhook\nconst requestData = $('Webhook Trigger').first().json.body;\n\n// Extract user plan and usage information\nconst planType = userData['Plan Type'] || 'Starter';\nconst bannersUsedThisMonth = userData['Banners Used This Month'] || 0;\nconst bannersMonthlyLimit = userData['Banners Monthly Limit'] || 3;\nconst currentMonthStored = userData['Current Month'] || '';\n\n// Get current month in YYYY-MM format\nconst now = new Date();\nconst currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;\n\n// Check if month has changed (needs reset)\nconst needsReset = currentMonthStored !== currentMonth;\n\n// Calculate number of variations from request\nconst numberOfVariations = parseInt(requestData.numberOfVariations) || 1;\n\n// Determine if usage is allowed\nlet allowed = false;\nlet reason = '';\n\n// Pro plan has unlimited access\nif (planType === 'Pro') {\n  allowed = true;\n  reason = 'Pro plan - unlimited access';\n} else {\n  // For Starter or other plans, check limits\n  const effectiveUsage = needsReset ? 0 : bannersUsedThisMonth;\n  const newTotal = effectiveUsage + numberOfVariations;\n  \n  if (newTotal <= bannersMonthlyLimit) {\n    allowed = true;\n    reason = `Within monthly limit (${newTotal}/${bannersMonthlyLimit})`;\n  } else {\n    allowed = false;\n    reason = `Monthly limit exceeded (${newTotal}/${bannersMonthlyLimit}). Upgrade to Pro for unlimited access.`;\n  }\n}\n\n// Return the result object\nreturn [{\n  json: {\n    allowed: allowed,\n    needs_reset: needsReset,\n    reason: reason,\n    service_selection: 'banner',\n    number_of_variations: numberOfVariations,\n    current_month: currentMonth,\n    plan_type: planType,\n    current_usage: needsReset ? 0 : bannersUsedThisMonth,\n    monthly_limit: bannersMonthlyLimit\n  }\n}];"
+      },
+      "id": "770f84d2-0a1e-4a4f-8725-6b462ddb0081",
+      "name": "Check Usage Limits",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.allowed }}",
+                    "rightValue": true,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "24ac7044-0016-4955-9f72-ff4a2b09f86a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Allowed"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.allowed }}",
+                    "rightValue": false,
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "equals"
+                    },
+                    "id": "e160f698-ddaa-490f-9bd1-237d51f41148"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Quota Exceeded"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Rejected"
+        }
+      },
+      "id": "42b08f7f-23d9-4b49-8816-faf64164c229",
+      "name": "Route by Quota Status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        -1696,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Use runOnceForAllItems - process all items\nconst items = $input.all();\n\nreturn items.map(item => {\n  const webhookBody = $('Webhook Trigger').first().json.body;\n  const bannerProfile = {\n    fullName: webhookBody.fullName || '',\n    professionalTitle: webhookBody.professionalTitle || '',\n    industry: webhookBody.industry || '',\n    industryNiche: webhookBody.industryNiche || '',\n    keyMessage: webhookBody.keyMessage || '',\n    brandKeywords: webhookBody.brandKeywords || '',\n    contentPillars: [\n      webhookBody.contentPillar1 || '',\n      webhookBody.contentPillar2 || '',\n      webhookBody.contentPillar3 || ''\n    ].filter(pillar => pillar !== ''),\n    bannerStyle: webhookBody.bannerStyle || '',\n    colors: {\n      primary: webhookBody.primaryColor || '',\n      secondary: webhookBody.secondaryColor || ''\n    },\n    bannerFormat: webhookBody.bannerFormat || '',\n    companyLogoUrl: webhookBody.companyLogoUrl || '',\n    professionalPhotoUrl: webhookBody.professionalPhotoUrl || ''\n  };\n  const variations = parseInt(webhookBody.numberOfVariations || 1, 10);\n  return {\n    json: {\n      banner_profile: bannerProfile,\n      email: webhookBody.email || '',\n      user_name: webhookBody.fullName || '',\n      variations: variations,\n      original_data: webhookBody\n    }\n  };\n});"
+      },
+      "id": "b622fa57-909c-4407-a3c1-21f7793cc37e",
+      "name": "Prepare Banner Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1472,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputItem = $input.all()[0].json; const numberOfVariations = inputItem.variations || 1; const bannerProfile = inputItem.banner_profile; const email = inputItem.email; const userName = inputItem.user_name; const outputItems = []; for (let i = 1; i <= numberOfVariations; i++) { outputItems.push({ json: { variation_index: i, banner_profile: bannerProfile, email: email, user_name: userName, numberOfVariations: numberOfVariations } }); } return outputItems;"
+      },
+      "id": "431e110d-d314-4c43-b430-6659315dcb4b",
+      "name": "Create Variations Loop",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from previous nodes\nconst prepareBannerData = $(\"Prepare Banner Data\").first().json;\nconst recipientEmail = prepareBannerData.email || '';\nconst recipientName = prepareBannerData.user_name || '';\nconst bannerProfile = prepareBannerData.banner_profile || {};\n\n// Get aggregated banner URLs from ImgBB\nconst aggregatedData = $(\"Aggregate Banner URLs\").first().json;\nconst bannerUrls = aggregatedData.banner_urls || [];\n\n// Build variations HTML using ImgBB URLs\nlet variationsHtml = '';\nfor (let i = 0; i < bannerUrls.length; i++) {\n  const bannerUrl = bannerUrls[i];\n  variationsHtml += `\n    <div style=\"margin-bottom: 30px; padding: 20px; background-color: #f9f9f9; border-radius: 8px;\">\n      <h3 style=\"color: #0077b5; margin-bottom: 15px;\">Variation ${i + 1}</h3>\n      <div style=\"margin-bottom: 15px;\">\n        <a href=\"${bannerUrl}\" target=\"_blank\">\n          <img src=\"${bannerUrl}\" alt=\"Banner Variation ${i + 1}\" style=\"max-width: 100%; height: auto; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);\" />\n        </a>\n      </div>\n      <p style=\"color: #666; font-size: 14px;\">\n        <a href=\"${bannerUrl}\" target=\"_blank\" style=\"color: #0077b5; text-decoration: none; font-weight: bold;\">Click here to view full size and download</a>\n      </p>\n    </div>\n  `;\n}\n\n// Build banner specs section\nconst specsHtml = `\n  <div style=\"margin: 30px 0; padding: 20px; background-color: #f0f8ff; border-left: 4px solid #0077b5; border-radius: 4px;\">\n    <h3 style=\"color: #0077b5; margin-bottom: 15px;\">Your Banner Specifications</h3>\n    <ul style=\"list-style: none; padding: 0; margin: 0;\">\n      <li style=\"margin-bottom: 10px;\"><strong>Style:</strong> ${bannerProfile.bannerStyle || 'N/A'}</li>\n      <li style=\"margin-bottom: 10px;\"><strong>Primary Color:</strong> <span style=\"display: inline-block; width: 20px; height: 20px; background-color: ${bannerProfile.colors?.primary || '#000'}; border: 1px solid #ccc; vertical-align: middle; margin-right: 5px;\"></span>${bannerProfile.colors?.primary || 'N/A'}</li>\n      <li style=\"margin-bottom: 10px;\"><strong>Secondary Color:</strong> <span style=\"display: inline-block; width: 20px; height: 20px; background-color: ${bannerProfile.colors?.secondary || '#000'}; border: 1px solid #ccc; vertical-align: middle; margin-right: 5px;\"></span>${bannerProfile.colors?.secondary || 'N/A'}</li>\n      <li style=\"margin-bottom: 10px;\"><strong>Format:</strong> ${bannerProfile.bannerFormat || 'N/A'}</li>\n      <li style=\"margin-bottom: 10px;\"><strong>Key Message:</strong> ${bannerProfile.keyMessage || 'N/A'}</li>\n    </ul>\n  </div>\n`;\n\n// Build tips section\nconst tipsHtml = `\n  <div style=\"margin: 30px 0; padding: 20px; background-color: #fff9e6; border-left: 4px solid #ffa500; border-radius: 4px;\">\n    <h3 style=\"color: #ff8c00; margin-bottom: 15px;\">Tips for Using Your LinkedIn Banner</h3>\n    <ul style=\"line-height: 1.8; color: #333;\">\n      <li>LinkedIn banner dimensions are 1584 x 396 pixels - your banners are optimized for this size</li>\n      <li>Make sure your banner looks good on both desktop and mobile devices</li>\n      <li>Update your banner regularly to keep your profile fresh and engaging</li>\n      <li>Ensure your banner complements your profile photo and doesn't overlap with it</li>\n      <li>Use your banner to communicate your professional brand and value proposition</li>\n      <li>Test different variations to see which one resonates best with your audience</li>\n    </ul>\n  </div>\n`;\n\n// Build footer\nconst footerHtml = `\n  <div style=\"margin-top: 40px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;\">\n    <p style=\"margin-bottom: 10px; font-size: 14px;\">Created with <strong style=\"color: #0077b5;\">Standout4Growth</strong></p>\n    <p style=\"margin-bottom: 10px; font-size: 12px;\">Empowering professionals to stand out on LinkedIn</p>\n    <p style=\"font-size: 12px; color: #999;\">Need help? Contact us at support@standout4growth.com</p>\n  </div>\n`;\n\n// Build complete email HTML\nconst emailHtml = `\n<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Your LinkedIn Banners Are Ready</title>\n</head>\n<body style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px;\">\n  <div style=\"text-align: center; margin-bottom: 30px;\">\n    <h1 style=\"color: #0077b5; margin-bottom: 10px;\">Your LinkedIn Banners Are Ready! ✨</h1>\n    <p style=\"font-size: 16px; color: #666;\">Hi ${recipientName}, your custom LinkedIn banners have been generated!</p>\n  </div>\n  \n  ${variationsHtml}\n  \n  ${specsHtml}\n  \n  ${tipsHtml}\n  \n  ${footerHtml}\n</body>\n</html>\n`;\n\n// Return output object\nreturn [{\n  json: {\n    recipient_email: recipientEmail,\n    recipient_name: recipientName,\n    email_subject: 'Your LinkedIn Banners Are Ready! ✨',\n    email_html: emailHtml,\n    banner_urls: bannerUrls\n  }\n}];"
+      },
+      "id": "df57e646-e85f-4e71-a71c-05c5bc97a98c",
+      "name": "Prepare Banner Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Workflow Configuration').first().json.smtpFromName }} <{{ $('Workflow Configuration').first().json.smtpFromEmail }}>",
+        "toEmail": "={{ $json.recipient_email }}",
+        "subject": "={{ $json.email_subject }}",
+        "html": "={{ $json.email_html }}",
+        "options": {
+          "appendAttribution": false,
+          "attachments": "={{ $json.attachments }}"
+        }
+      },
+      "id": "06cd34d9-f818-458f-b398-650523565f8d",
+      "name": "Send Banner Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        96,
+        208
+      ],
+      "webhookId": "d430de3d-574a-4cef-b132-9d7fc45736fd",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $('Workflow Configuration').first().json.smtpFromName }} <{{ $('Workflow Configuration').first().json.smtpFromEmail }}>",
+        "toEmail": "={{ $('Webhook Trigger').first().json.body.email }}",
+        "subject": "🚫 Monthly Banner Quota Exceeded - Upgrade to Pro",
+        "html": "=<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <style>\n    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }\n    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }\n    .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }\n    .usage-box { background: white; border-left: 4px solid #ff6b6b; padding: 20px; margin: 20px 0; border-radius: 5px; }\n    .usage-stats { font-size: 24px; font-weight: bold; color: #ff6b6b; margin: 10px 0; }\n    .cta-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 20px 0; }\n    .benefits { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; }\n    .benefit-item { padding: 10px 0; border-bottom: 1px solid #eee; }\n    .benefit-item:last-child { border-bottom: none; }\n    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }\n  </style>\n</head>\n<body>\n  <div class=\"header\">\n    <h1>🚫 Monthly Quota Exceeded</h1>\n  </div>\n  <div class=\"content\">\n    <p>Hi {{ $('Webhook Trigger').first().json.body.user_name || 'there' }},</p>\n    \n    <p>You've reached your monthly banner generation limit. Your request for <strong>{{ $('Check Usage Limits').first().json.number_of_variations }} banner variation(s)</strong> could not be processed.</p>\n    \n    <div class=\"usage-box\">\n      <h3>Current Usage Status</h3>\n      <div class=\"usage-stats\">\n        {{ $('Check Usage Limits').first().json.current_usage }} / {{ $('Check Usage Limits').first().json.monthly_limit }} banners used\n      </div>\n      <p><strong>Plan Type:</strong> {{ $('Check Usage Limits').first().json.plan_type }}</p>\n      <p><strong>Next Reset:</strong> {{ new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) }}</p>\n    </div>\n    \n    <h2>🚀 Upgrade to Pro for Unlimited Access</h2>\n    \n    <div class=\"benefits\">\n      <div class=\"benefit-item\">✅ <strong>Unlimited Banner Generations</strong> - Create as many banners as you need</div>\n      <div class=\"benefit-item\">✅ <strong>Priority Processing</strong> - Faster generation times</div>\n      <div class=\"benefit-item\">✅ <strong>Advanced Customization</strong> - More styles and options</div>\n      <div class=\"benefit-item\">✅ <strong>Premium Support</strong> - Get help when you need it</div>\n      <div class=\"benefit-item\">✅ <strong>Early Access</strong> - Be first to try new features</div>\n    </div>\n    \n    <center>\n      <a href=\"https://standout4growth.com/upgrade\" class=\"cta-button\">Upgrade to Pro Now</a>\n    </center>\n    \n    <p style=\"margin-top: 30px;\">Questions? Reply to this email or visit our <a href=\"https://standout4growth.com/support\">support center</a>.</p>\n  </div>\n  \n  <div class=\"footer\">\n    <p><strong>Standout4Growth</strong></p>\n    <p>Empowering professionals to stand out on LinkedIn</p>\n    <p><a href=\"https://standout4growth.com\">Visit Website</a> | <a href=\"https://standout4growth.com/contact\">Contact Us</a></p>\n  </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "e37f6b1b-24ee-4ac7-af3b-7b278ef30757",
+      "name": "Send Quota Exceeded Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        -1472,
+        400
+      ],
+      "webhookId": "6f14494b-1d63-4069-afea-8a923f9cc4e8",
+      "credentials": {
+        "smtp": {
+          "id": "AqcHg9rwGnWCJHHa",
+          "name": "ALICE NGATIA"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-image-preview (Nano Banana)"
+        },
+        "prompt": "=High quality, high resolution, 4K quality. Create a professional LinkedIn banner (1584x396 pixels) for {{ $json.banner_profile.fullName }}, a {{ $json.banner_profile.professionalTitle }} in the {{ $json.banner_profile.industry }} industry.\n\nKey Message: \"{{ $json.banner_profile.keyMessage }}\"\n\nStyle Requirements:\n- Design style: {{ $json.banner_profile.bannerStyle }}\n- Primary color: {{ $json.banner_profile.colors.primary }}\n- Secondary color: {{ $json.banner_profile.colors.secondary }}\n- Banner format: {{ $json.banner_profile.bannerFormat }}\n\nDesign Guidelines:\n- Modern, clean, and professional aesthetic\n- Eye-catching and memorable\n- Optimized for LinkedIn banner dimensions (16:9 aspect ratio)\n- No text overlays or watermarks\n- Focus on visual impact and brand identity\n\nAdditional Context:\n{{ $json.banner_profile.industryNiche ? \"Industry Niche: \" + $json.banner_profile.industryNiche : \"\" }}\n{{ $json.banner_profile.brandKeywords ? \"Brand Keywords: \" + $json.banner_profile.brandKeywords : \"\" }}\n{{ $json.banner_profile.contentPillars && $json.banner_profile.contentPillars.length > 0 ? \"Content Pillars: \" + $json.banner_profile.contentPillars.join(\", \") : \"\" }}",
+        "options": {
+          "sampleCount": 1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        208
+      ],
+      "id": "b9dd059b-e26b-4213-847f-5f6cd0df1499",
+      "name": "Generate an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "MFflYI7Thzcx84ej",
+          "name": "nano banana"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data.display_url",
+              "renameField": true,
+              "outputFieldName": "banner_urls"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8f05e725-d297-4898-96e2-47d0fdfc7a4b",
+      "name": "Aggregate Banner URLs",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $('Workflow Configuration').first().json.imgbbApiKey }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "name",
+              "value": "=banner_{{ $json.user_name }}_v{{ $json.variation_index }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c51026c4-4f7a-4e72-a318-d0ff284fe452",
+      "name": "Upload to ImgBB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -752,
+        272
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get User from Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User from Airtable": {
+      "main": [
+        [
+          {
+            "node": "Validate Banner Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Banner Data": {
+      "main": [
+        [
+          {
+            "node": "Check Usage Limits",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Usage Limits": {
+      "main": [
+        [
+          {
+            "node": "Route by Quota Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Quota Status": {
+      "main": [
+        [
+          {
+            "node": "Prepare Banner Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Quota Exceeded Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Banner Data": {
+      "main": [
+        [
+          {
+            "node": "Create Variations Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Variations Loop": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Banner Email": {
+      "main": [
+        [
+          {
+            "node": "Send Banner Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Upload to ImgBB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Banner URLs": {
+      "main": [
+        [
+          {
+            "node": "Prepare Banner Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Banner Email": {
+      "main": [
+        [
+          {
+            "node": "Update Banner Usage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to ImgBB": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Banner URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "versionId": "3b954677-e8a5-483c-b65f-d0c95f139d0a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "37b22ae5b73a9dce0788d7d4a3f919a87e631d67723f1ebc928b1ad2847f83e6"
+  },
+  "id": "toebd0FOYefAFGke",
+  "tags": []
+}
