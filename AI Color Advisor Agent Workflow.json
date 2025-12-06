@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "AI Color Advisor Agent Workflow",
   "nodes": [
     {
@@ -58,7 +58,7 @@
       ],
       "credentials": {
         "httpHeaderAuth": {
-          "id": "pUR9uRjaxxdw7e3B",
+          "id": "[HTTP_HEADER_SAMBRIGHT_CREDENTIAL_ID]",
           "name": "sambright"
         }
       }
@@ -139,7 +139,7 @@
           "parameters": [
             {
               "name": "key",
-              "value": "AIzaSyArjx7exdw1rwCCLf51gW1-mstadToSG2M"
+              "value": "[GOOGLE_GEMINI_API_KEY]"
             }
           ]
         },
@@ -205,7 +205,7 @@
           "parameters": [
             {
               "name": "key",
-              "value": "c877c3665f3b78f89d95443a3b1e42cc"
+              "value": "[IMGBB_API_KEY]"
             },
             {
               "parameterType": "formBinaryData",

@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "Personal Brand Automation Workflow",
   "nodes": [
     {
@@ -158,7 +158,7 @@
       ],
       "credentials": {
         "openRouterApi": {
-          "id": "EuIBliX5jA50wAC3",
+          "id": "[OPENROUTER_CREDENTIAL_ID]",
           "name": "Alicia Ngatia"
         }
       }
@@ -210,7 +210,7 @@
       ],
       "credentials": {
         "openRouterApi": {
-          "id": "EuIBliX5jA50wAC3",
+          "id": "[OPENROUTER_CREDENTIAL_ID]",
           "name": "Alicia Ngatia"
         }
       }
@@ -279,7 +279,7 @@
       "webhookId": "5c8b3f06-26af-4bcc-aef1-7b94c77177be",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -602,7 +602,7 @@
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -693,7 +693,7 @@
       "webhookId": "25159e67-22a1-4446-a764-117f1274724d",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -707,7 +707,7 @@
           "parameters": [
             {
               "name": "key",
-              "value": "c877c3665f3b78f89d95443a3b1e42cc"
+              "value": "[IMGBB_API_KEY]"
             }
           ]
         },
@@ -1061,7 +1061,7 @@
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -1391,7 +1391,7 @@
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -1430,7 +1430,7 @@
       "webhookId": "9243d885-6649-4ccf-b59e-aede7d05b6c8",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -1467,7 +1467,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer 851d7adec75aaaebc1bb731201610caf7087e0d5"
+              "value": "=Bearer [SERPER_API_KEY]"
             }
           ]
         },
@@ -1483,7 +1483,7 @@
       "typeVersion": 4.1,
       "credentials": {
         "httpHeaderAuth": {
-          "id": "SjuzPdTyjolsYvlt",
+          "id": "[HTTP_HEADER_AUTH_CREDENTIAL_ID]",
           "name": "Header Auth account"
         }
       }
@@ -1530,13 +1530,13 @@
             {
               "id": "id-4",
               "name": "geminiApiKey",
-              "value": "AIzaSyArjx7exdw1rwCCLf51gW1-mstadToSG2M",
+              "value": "[GOOGLE_GEMINI_API_KEY]",
               "type": "string"
             },
             {
               "id": "id-5",
               "name": "smtpFromEmail",
-              "value": "mailing@standout4growth.com",
+              "value": "[SENDER_EMAIL]",
               "type": "string"
             },
             {
@@ -1678,7 +1678,7 @@
       "webhookId": "b5c16b59-b3d2-409b-b71f-f1df6919f563",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -1714,7 +1714,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -1773,7 +1773,7 @@
           "query": {},
           "body": {
             "fullName": "HARRISON NDEKE",
-            "email": "harrisonndeke056@gmail.com",
+            "email": "[USER_EMAIL]",
             "professionalTitle": "AI Developer",
             "services": [
               "about"

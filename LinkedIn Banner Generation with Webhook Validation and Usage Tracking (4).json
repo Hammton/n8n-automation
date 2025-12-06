@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "LinkedIn Banner Generation with Webhook Validation and Usage Tracking",
   "nodes": [
     {
@@ -97,7 +97,7 @@
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -109,7 +109,7 @@
             {
               "id": "id-2",
               "name": "smtpFromEmail",
-              "value": "mailing@standout4growth.com",
+              "value": "[SENDER_EMAIL]",
               "type": "string"
             },
             {
@@ -121,7 +121,7 @@
             {
               "id": "id-4",
               "name": "imgbbApiKey",
-              "value": "c877c3665f3b78f89d95443a3b1e42cc",
+              "value": "[IMGBB_API_KEY]",
               "type": "string"
             }
           ]
@@ -168,7 +168,7 @@
       ],
       "credentials": {
         "airtableTokenApi": {
-          "id": "5Ja5UkHXSqPvt9wO",
+          "id": "[AIRTABLE_USAGE_TRACKER_CREDENTIAL_ID]",
           "name": "Standout4Growth Usage Tracker"
         }
       }
@@ -328,7 +328,7 @@
       "webhookId": "d430de3d-574a-4cef-b132-9d7fc45736fd",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -354,7 +354,7 @@
       "webhookId": "6f14494b-1d63-4069-afea-8a923f9cc4e8",
       "credentials": {
         "smtp": {
-          "id": "AqcHg9rwGnWCJHHa",
+          "id": "[SMTP_CREDENTIAL_ID]",
           "name": "ALICE NGATIA"
         }
       }
@@ -383,7 +383,7 @@
       "name": "Generate an image",
       "credentials": {
         "googlePalmApi": {
-          "id": "MFflYI7Thzcx84ej",
+          "id": "[GOOGLE_PALM_CREDENTIAL_ID]",
           "name": "nano banana"
         }
       }

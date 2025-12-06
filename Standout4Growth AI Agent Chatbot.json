@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "Standout4Growth AI Agent Chatbot",
   "nodes": [
     {
@@ -39,7 +39,7 @@
       "name": "Retrieve from Supabase",
       "credentials": {
         "supabaseApi": {
-          "id": "Knmxh8yerNV05VEm",
+          "id": "[SUPABASE_CREDENTIAL_ID]",
           "name": "standout4growth"
         }
       }
@@ -58,7 +58,7 @@
       "name": "Embeddings OpenAI1",
       "credentials": {
         "openAiApi": {
-          "id": "lwgdOeD1SKNQmYAi",
+          "id": "[OPENAI_CREDENTIAL_ID]",
           "name": "solara"
         }
       }
@@ -94,7 +94,7 @@
       "name": "OpenRouter Chat Model",
       "credentials": {
         "openRouterApi": {
-          "id": "EuIBliX5jA50wAC3",
+          "id": "[OPENROUTER_CREDENTIAL_ID]",
           "name": "Alicia Ngatia"
         }
       }
